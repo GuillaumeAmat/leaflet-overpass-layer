@@ -21,9 +21,9 @@ L.Control.MinZoomIndicator = L.Control.extend({
 
 		var minzoom = 15;
 
-		if (layer.options.minzoom) {
+		if (layer.options.minZoom) {
 
-			minzoom = layer.options.minzoom;
+			minzoom = layer.options.minZoom;
 		}
 
 		this._layers[layer._leaflet_id] = minzoom;
@@ -154,7 +154,7 @@ L.OverPassLayer = L.FeatureGroup.extend({
 				var pos, popup, circle,
 				e = data.elements[i];
 
-				if (e.id in this.instance._ids) return;
+				if (e.id in this.instance._ids) continue;
 
 				this.instance._ids[e.id] = true;
 
