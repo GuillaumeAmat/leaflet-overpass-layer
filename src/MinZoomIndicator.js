@@ -21,9 +21,9 @@ L.Control.MinZoomIndicator = L.Control.extend({
 
 		var minzoom = 15;
 
-		if (layer.options.minzoom) {
+		if (layer.options.minZoom) {
 
-			minzoom = layer.options.minzoom;
+			minzoom = layer.options.minZoom;
 		}
 
 		this._layers[layer._leaflet_id] = minzoom;
