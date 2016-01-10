@@ -1,2 +1,5 @@
+Changes in 1.4.3:
+- Kill out of date queries before sending new ones
+
 Changes in 1.4.2:
 - Fix the minZoom option name (not camelcased) in MinZoomIndicator.js

@@ -18,6 +18,7 @@ Here is a list of changes made after the fork:
 * Add the ability to retry a request when it returned a timeout
 * If beforeRequest return false, the request is not launched
 * Add the noInitialRequest option to prevent the initial request to be launched if necessary
+* Kill out of date queries before sending new ones
 
 
 The first release of this fork is the version **1.1.0**.
