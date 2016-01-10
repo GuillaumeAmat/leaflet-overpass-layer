@@ -85,6 +85,24 @@ L.OverPassLayer = L.FeatureGroup.extend({
         this._requested = {};
     },
 
+    killMyQueries: function () {
+
+        var self = this;
+
+        L.OverPassLayer._killMyQueriesPromise = new Promise(function (resolve, reject) {
+
+            var request = new XMLHttpRequest();
+            request.open('GET', self.options.endPoint +'/kill_my_queries', true);
+
+            request.onload = function () {
+
+                resolve(this.response);
+            };
+
+            request.send();
+        });
+	},
+
     _poiInfo: function(tags, id) {
 
         var row,
@@ -166,9 +184,14 @@ L.OverPassLayer = L.FeatureGroup.extend({
 
     onMoveEnd: function () {
 
+        L.OverPassLayer._killMyQueriesPromise.then( this.prepareRequest.bind(this) );
+    },
+
+	prepareRequest: function () {
+
         if (this._map.getZoom() >= this.options.minZoom) {
 
-            var x, y, bbox, bboxList, request, url, queryWithMapCoordinates,
+            var x, y, bbox, bboxList, url, queryWithMapCoordinates,
             self = this,
             countdown = 0,
             beforeRequest = true,
@@ -295,7 +318,13 @@ L.OverPassLayer = L.FeatureGroup.extend({
 
         if ( !this.options.noInitialRequest ) {
 
-            this.onMoveEnd();
+            this.prepareRequest();
+        }
+
+        if ( !L.OverPassLayer._initialized ) {
+
+            L.OverPassLayer._initialized = true;
+            map.on('moveend', this.killMyQueries, this);
         }
 
         if (this.options.query.indexOf('({{bbox}})') !== -1) {
