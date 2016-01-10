@@ -92,7 +92,7 @@ L.OverPassLayer = L.FeatureGroup.extend({
         L.OverPassLayer._killMyQueriesPromise = new Promise(function (resolve, reject) {
 
             var request = new XMLHttpRequest();
-            request.open('GET', self.options.endPoint +'/kill_my_queries', true);
+            request.open('GET', self.options.endPoint +'kill_my_queries', true);
 
             request.onload = function () {
 
