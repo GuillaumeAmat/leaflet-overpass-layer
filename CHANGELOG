@@ -1,3 +1,6 @@
+Changes in 1.4.4:
+- Remove a duplicate / in the kill queries call
+
 Changes in 1.4.3:
 - Kill out of date queries before sending new ones
 
