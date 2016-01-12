@@ -184,7 +184,13 @@ L.OverPassLayer = L.FeatureGroup.extend({
 
     onMoveEnd: function () {
 
-        L.OverPassLayer._killMyQueriesPromise.then( this.prepareRequest.bind(this) );
+        if (this.options.requestPerTile) {
+
+            this.prepareRequest();
+        } else {
+
+            L.OverPassLayer._killMyQueriesPromise.then( this.prepareRequest.bind(this) );
+        }
     },
 
 	prepareRequest: function () {
@@ -321,7 +327,7 @@ L.OverPassLayer = L.FeatureGroup.extend({
             this.prepareRequest();
         }
 
-        if ( !L.OverPassLayer._initialized ) {
+        if ( !this.options.requestPerTile && !L.OverPassLayer._initialized ) {
 
             L.OverPassLayer._initialized = true;
             map.on('moveend', this.killMyQueries, this);
