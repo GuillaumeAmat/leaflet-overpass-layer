@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.2
+* Bump Leaflet version to 0.7.7.
+
+## 1.5.1
+* Rename the CHANGELOG file.
+
 ## 1.5.0
 * Adds some significant refactor of code.
 * Removes the requestPerTile mode.
