@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.5.3
+* Reduce the size of the requests' areas.
+
 ## 1.5.2
 * Bump Leaflet version to 0.7.7.
 
