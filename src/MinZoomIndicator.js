@@ -2,7 +2,6 @@ L.Control.MinZoomIndicator = L.Control.extend({
 
     options: {
 
-        position: 'bottomleft',
     },
 
     _layers: {},
@@ -14,26 +13,20 @@ L.Control.MinZoomIndicator = L.Control.extend({
         this._layers = {};
     },
 
-    /**
-    * adds a layer with minzoom information to this._layers
-    */
     _addLayer: function(layer) {
 
-        var minzoom = 15;
+        var minZoom = 15;
 
         if (layer.options.minZoom) {
 
-            minzoom = layer.options.minZoom;
+            minZoom = layer.options.minZoom;
         }
 
-        this._layers[layer._leaflet_id] = minzoom;
+        this._layers[layer._leaflet_id] = minZoom;
 
         this._updateBox(null);
     },
 
-    /**
-    * removes a layer from this._layers
-    */
     _removeLayer: function(layer) {
 
         this._layers[layer._leaflet_id] = null;
@@ -44,33 +37,61 @@ L.Control.MinZoomIndicator = L.Control.extend({
     _getMinZoomLevel: function() {
 
         var key,
-        minZoomlevel =- 1;
+        minZoomLevel =- 1;
 
         for(key in this._layers) {
 
-            if ((this._layers[key] !== null) && (this._layers[key] > minZoomlevel)) {
+            if ( this._layers[key] !== null && this._layers[key] > minZoomLevel ) {
 
-                minZoomlevel = this._layers[key];
+                minZoomLevel = this._layers[key];
             }
         }
 
-        return minZoomlevel;
+        return minZoomLevel;
+    },
+
+
+    _updateBox: function (event) {
+
+        var minZoomLevel = this._getMinZoomLevel();
+
+        if (event !== null) {
+
+            L.DomEvent.preventDefault(event);
+        }
+
+        if (minZoomLevel == -1) {
+
+            this._container.innerHTML = this.options.minZoomMessageNoLayer;
+        } else {
+
+            this._container.innerHTML = this.options.minZoomMessage
+                    .replace(/CURRENTZOOM/, this._map.getZoom())
+                    .replace(/MINZOOMLEVEL/, minZoomLevel);
+        }
+
+        if (this._map.getZoom() >= minZoomLevel) {
+
+            this._container.style.display = 'none';
+        } else {
+
+            this._container.style.display = 'block';
+        }
     },
 
     onAdd: function (map) {
 
         this._map = map;
 
-        map.zoomIndicator = this;
+        this._map.zoomIndicator = this;
 
-        var className = this.className,
-        container = this._container = L.DomUtil.create('div', className);
+        this._container = L.DomUtil.create('div', 'leaflet-control-minZoomIndicator');
 
-        map.on('moveend', this._updateBox, this);
+        this._map.on('moveend', this._updateBox, this);
 
         this._updateBox(null);
 
-        return container;
+        return this._container;
     },
 
     onRemove: function(map) {
@@ -84,35 +105,4 @@ L.Control.MinZoomIndicator = L.Control.extend({
 
         this._map = null;
     },
-
-    _updateBox: function (event) {
-
-        if (event !== null) {
-
-            L.DomEvent.preventDefault(event);
-        }
-
-        var minzoomlevel = this._getMinZoomLevel();
-
-        if (minzoomlevel == -1) {
-
-            this._container.innerHTML = this.options.minZoomMessageNoLayer;
-
-        } else {
-
-            this._container.innerHTML = this.options.minZoomMessage
-                    .replace(/CURRENTZOOM/, this._map.getZoom())
-                    .replace(/MINZOOMLEVEL/, minzoomlevel);
-        }
-
-        if (this._map.getZoom() >= minzoomlevel) {
-
-            this._container.style.display = 'none';
-        } else {
-
-            this._container.style.display = 'block';
-        }
-    },
-
-    className : 'leaflet-control-minZoomIndicator'
 });

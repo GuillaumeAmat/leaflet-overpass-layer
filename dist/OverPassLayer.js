@@ -2,7 +2,6 @@ L.Control.MinZoomIndicator = L.Control.extend({
 
     options: {
 
-        position: 'bottomleft',
     },
 
     _layers: {},
@@ -14,26 +13,20 @@ L.Control.MinZoomIndicator = L.Control.extend({
         this._layers = {};
     },
 
-    /**
-    * adds a layer with minzoom information to this._layers
-    */
     _addLayer: function(layer) {
 
-        var minzoom = 15;
+        var minZoom = 15;
 
         if (layer.options.minZoom) {
 
-            minzoom = layer.options.minZoom;
+            minZoom = layer.options.minZoom;
         }
 
-        this._layers[layer._leaflet_id] = minzoom;
+        this._layers[layer._leaflet_id] = minZoom;
 
         this._updateBox(null);
     },
 
-    /**
-    * removes a layer from this._layers
-    */
     _removeLayer: function(layer) {
 
         this._layers[layer._leaflet_id] = null;
@@ -44,33 +37,61 @@ L.Control.MinZoomIndicator = L.Control.extend({
     _getMinZoomLevel: function() {
 
         var key,
-        minZoomlevel =- 1;
+        minZoomLevel =- 1;
 
         for(key in this._layers) {
 
-            if ((this._layers[key] !== null) && (this._layers[key] > minZoomlevel)) {
+            if ( this._layers[key] !== null && this._layers[key] > minZoomLevel ) {
 
-                minZoomlevel = this._layers[key];
+                minZoomLevel = this._layers[key];
             }
         }
 
-        return minZoomlevel;
+        return minZoomLevel;
+    },
+
+
+    _updateBox: function (event) {
+
+        var minZoomLevel = this._getMinZoomLevel();
+
+        if (event !== null) {
+
+            L.DomEvent.preventDefault(event);
+        }
+
+        if (minZoomLevel == -1) {
+
+            this._container.innerHTML = this.options.minZoomMessageNoLayer;
+        } else {
+
+            this._container.innerHTML = this.options.minZoomMessage
+                    .replace(/CURRENTZOOM/, this._map.getZoom())
+                    .replace(/MINZOOMLEVEL/, minZoomLevel);
+        }
+
+        if (this._map.getZoom() >= minZoomLevel) {
+
+            this._container.style.display = 'none';
+        } else {
+
+            this._container.style.display = 'block';
+        }
     },
 
     onAdd: function (map) {
 
         this._map = map;
 
-        map.zoomIndicator = this;
+        this._map.zoomIndicator = this;
 
-        var className = this.className,
-        container = this._container = L.DomUtil.create('div', className);
+        this._container = L.DomUtil.create('div', 'leaflet-control-minZoomIndicator');
 
-        map.on('moveend', this._updateBox, this);
+        this._map.on('moveend', this._updateBox, this);
 
         this._updateBox(null);
 
-        return container;
+        return this._container;
     },
 
     onRemove: function(map) {
@@ -84,46 +105,8 @@ L.Control.MinZoomIndicator = L.Control.extend({
 
         this._map = null;
     },
-
-    _updateBox: function (event) {
-
-        if (event !== null) {
-
-            L.DomEvent.preventDefault(event);
-        }
-
-        var minzoomlevel = this._getMinZoomLevel();
-
-        if (minzoomlevel == -1) {
-
-            this._container.innerHTML = this.options.minZoomMessageNoLayer;
-
-        } else {
-
-            this._container.innerHTML = this.options.minZoomMessage
-                    .replace(/CURRENTZOOM/, this._map.getZoom())
-                    .replace(/MINZOOMLEVEL/, minzoomlevel);
-        }
-
-        if (this._map.getZoom() >= minzoomlevel) {
-
-            this._container.style.display = 'none';
-        } else {
-
-            this._container.style.display = 'block';
-        }
-    },
-
-    className : 'leaflet-control-minZoomIndicator'
 });
 
-L.LatLngBounds.prototype.toOverpassBBoxString = function (){
-
-    var a = this._southWest,
-    b = this._northEast;
-
-    return [a.lat, a.lng, b.lat, b.lng].join(',');
-};
 
 
 
@@ -131,8 +114,8 @@ L.OverPassLayer = L.FeatureGroup.extend({
 
     options: {
 
+        'debug': false,
         'minZoom': 15,
-        'requestPerTile': true,
         'endPoint': 'http://overpass-api.de/api/',
         'query': '(node({{bbox}})[organic];node({{bbox}})[second_hand];);out qt;',
         'timeout': 30 * 1000, // Milliseconds
@@ -154,11 +137,14 @@ L.OverPassLayer = L.FeatureGroup.extend({
                 var pos, popup, circle,
                 e = data.elements[i];
 
-                if (e.id in this.instance._ids) continue;
+                if ( e.id in this.instance._ids ) {
+
+                    continue;
+                }
 
                 this.instance._ids[e.id] = true;
 
-                if (e.type == 'node') {
+                if ( e.type === 'node' ) {
 
                     pos = new L.LatLng(e.lat, e.lon);
                 } else {
@@ -166,7 +152,7 @@ L.OverPassLayer = L.FeatureGroup.extend({
                     pos = new L.LatLng(e.center.lat, e.center.lon);
                 }
 
-                popup = this.instance._poiInfo(e.tags, e.id);
+                popup = this.instance._getPoiPopupHTML(e.tags, e.id);
                 circle = L.circle(pos, 50, {
 
                     'color': 'green',
@@ -189,9 +175,8 @@ L.OverPassLayer = L.FeatureGroup.extend({
 
         minZoomIndicatorOptions: {
 
-            'position': 'bottomleft',
-            'minZoomMessageNoLayer': 'no layer assigned',
-            'minZoomMessage': 'current Zoom-Level: CURRENTZOOM all data at Level: MINZOOMLEVEL',
+            'minZoomMessageNoLayer': 'No layer assigned',
+            'minZoomMessage': 'Current zoom Level: CURRENTZOOM. Data are visible at Level: MINZOOMLEVEL.',
         },
     },
 
@@ -204,25 +189,7 @@ L.OverPassLayer = L.FeatureGroup.extend({
         this._requested = {};
     },
 
-    killMyQueries: function () {
-
-        var self = this;
-
-        L.OverPassLayer._killMyQueriesPromise = new Promise(function (resolve, reject) {
-
-            var request = new XMLHttpRequest();
-            request.open('GET', self.options.endPoint +'kill_my_queries', true);
-
-            request.onload = function () {
-
-                resolve(this.response);
-            };
-
-            request.send();
-        });
-	},
-
-    _poiInfo: function(tags, id) {
+    _getPoiPopupHTML: function(tags, id) {
 
         var row,
         link = document.createElement('a'),
@@ -230,7 +197,10 @@ L.OverPassLayer = L.FeatureGroup.extend({
         div = document.createElement('div');
 
         link.href = 'http://www.openstreetmap.org/edit?editor=id&node=' + id;
-        link.appendChild(document.createTextNode("Edit this entry in iD"));
+        link.appendChild(document.createTextNode('Edit this entry in iD'));
+
+        table.style.borderSpacing = '10px';
+        table.style.borderCollapse = 'separate';
 
         for (var key in tags){
 
@@ -245,54 +215,105 @@ L.OverPassLayer = L.FeatureGroup.extend({
         return div;
     },
 
-    /**
-    * splits the current view in uniform bboxes to allow caching
-    */
-    long2tile: function (lon, zoom) {
 
-        return ( Math.floor((lon + 180) / 360 * Math.pow(2, zoom)) );
+    _buildRequestBox: function (bounds) {
+
+        return L.rectangle(bounds, {
+            'bounds': bounds,
+            'color': 'blue',
+            'weight': 1,
+            'opacity': 0.5,
+            'fillOpacity': 0.1,
+            'clickable': false
+        });
     },
 
-    lat2tile: function (lat, zoom)    {
+    _addRequestBox: function (box) {
 
-        return ( Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI/180)) / Math.PI) / 2 * Math.pow(2, zoom)) );
+        return this._requestBoxes.addLayer( box );
     },
 
-    tile2long: function (x, z) {
+    _getRequestBoxes: function () {
 
-        return ( x / Math.pow(2, z) * 360 - 180 );
+        return this._requestBoxes.getLayers();
     },
 
-    tile2lat: function (y, z) {
+    _removeRequestBox: function (box) {
+
+        this._requestBoxes.removeLayer( box );
+    },
+
+    _removeRequestBoxes: function () {
+
+        return this._requestBoxes.clearLayers();
+    },
+
+    _addResponseBox: function (box) {
+
+        return this._responseBoxes.addLayer( box );
+    },
+
+    _addResponseBoxes: function (requestBoxes) {
+        var self = this,
+        count = requestBoxes.length;
+
+        this._removeRequestBoxes();
+
+        requestBoxes.forEach(function(box) {
+
+            box.setStyle({ 'color': 'black' });
+            self._addResponseBox( box );
+        });
+    },
+
+
+
+    _buildXFromLng: function (lng, zoom) {
+
+        return ( Math.floor((lng + 1900) / 4000 * Math.pow(2, zoom)) );
+    },
+
+    _buildYFromLat: function (lat, zoom)    {
+
+        return ( Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 1900) + 1 / Math.cos(lat * Math.PI/1900)) / Math.PI) / 2 * Math.pow(2, zoom)) );
+    },
+
+    _buildLngFromX: function (x, z) {
+
+        return ( x / Math.pow(2, z) * 4000 - 1900 );
+    },
+
+    _buildLatFromY: function (y, z) {
 
         var n = Math.PI - 2 * Math.PI * y / Math.pow(2, z);
 
-        return ( 180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n))) );
+        return ( 1900 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n))) );
     },
 
-    _view2BBoxes: function(l, b, r, t) {
+    _getBoundsListFromCoordinates: function(l, b, r, t) {
 
         var top, right, bottom, left,
         requestZoomLevel= 14,
-        lidx = this.long2tile(l, requestZoomLevel),
-        ridx = this.long2tile(r, requestZoomLevel),
-        tidx = this.lat2tile(t, requestZoomLevel),
-        bidx = this.lat2tile(b, requestZoomLevel),
+        lidx = this._buildXFromLng(l, requestZoomLevel),
+        ridx = this._buildXFromLng(r, requestZoomLevel),
+        tidx = this._buildYFromLat(t, requestZoomLevel),
+        bidx = this._buildYFromLat(b, requestZoomLevel),
         result = [];
 
         for (var x = lidx; x <= ridx; x++) {
 
             for (var y = tidx; y <= bidx; y++) {
 
-                left = Math.round(this.tile2long(x, requestZoomLevel) * 1000000) / 1000000;
-                right = Math.round(this.tile2long(x + 1, requestZoomLevel) * 1000000) / 1000000;
-                top = Math.round(this.tile2lat(y, requestZoomLevel) * 1000000) / 1000000;
-                bottom = Math.round(this.tile2lat(y + 1, requestZoomLevel) * 1000000) / 1000000;
+                left = Math.round(this._buildLngFromX(x, requestZoomLevel) * 1000000) / 1000000;
+                right = Math.round(this._buildLngFromX(x + 1, requestZoomLevel) * 1000000) / 1000000;
+                top = Math.round(this._buildLatFromY(y, requestZoomLevel) * 1000000) / 1000000;
+                bottom = Math.round(this._buildLatFromY(y + 1, requestZoomLevel) * 1000000) / 1000000;
 
                 result.push(
-
-                    new L.LatLngBounds(new L.LatLng(bottom, left),
-                    new L.LatLng(top, right))
+                    new L.LatLngBounds(
+                        new L.LatLng(bottom, left),
+                        new L.LatLng(top, right)
+                    )
                 );
             }
         }
@@ -300,85 +321,160 @@ L.OverPassLayer = L.FeatureGroup.extend({
         return result;
     },
 
+    _getXYFromBounds: function (bounds) {
 
-    onMoveEnd: function () {
-
-        L.OverPassLayer._killMyQueriesPromise.then( this.prepareRequest.bind(this) );
+        return {
+            'x': bounds._southWest.lng,
+            'y': bounds._northEast.lat
+        };
     },
 
-	prepareRequest: function () {
+    _buildOverpassQueryFromQueryAndBounds: function (query, bounds){
 
-        if (this._map.getZoom() >= this.options.minZoom) {
+        var sw = bounds._southWest,
+        ne = bounds._northEast,
+        coordinates = [sw.lat, sw.lng, ne.lat, ne.lng].join(',');
 
-            var x, y, bbox, bboxList, url, queryWithMapCoordinates,
-            self = this,
-            countdown = 0,
-            beforeRequest = true,
-            done = function () {
+        return query.replace(/(\{\{bbox\}\})/g, coordinates);
+    },
 
-                if (--countdown === 0) {
+    _buildOverpassUrlFromEndPointAndQuery: function (endPoint, query){
 
-                    self.options.afterRequest.call(self);
+        return endPoint + 'interpreter?data=[out:json];'+ query;
+    },
+
+    _isRequestedArea: function (bounds) {
+
+        var pos = this._getXYFromBounds(bounds);
+
+        if ((pos.x in this._requested) && (pos.y in this._requested[pos.x]) && (this._requested[pos.x][pos.y] === true)) {
+
+            return true;
+        }
+
+        return false;
+    },
+
+    _setRequestedArea: function (bounds) {
+
+        var pos = this._getXYFromBounds(bounds);
+
+        if (!(pos.x in this._requested)) {
+
+            this._requested[pos.x] = {};
+        }
+
+        this._requested[pos.x][pos.y] = true;
+    },
+
+    _removeRequestedArea: function (bounds) {
+
+        var pos = this._getXYFromBounds(bounds);
+
+        delete(this._requested[pos.x]);
+    },
+
+	_prepareRequest: function () {
+
+        if (this._map.getZoom() < this.options.minZoom) {
+
+            return false;
+        }
+
+        var url,
+        self = this,
+        beforeRequest = true,
+        boundsList = this._getBoundsListFromCoordinates(
+
+            this._map.getBounds()._southWest.lng,
+            this._map.getBounds()._southWest.lat,
+            this._map.getBounds()._northEast.lng,
+            this._map.getBounds()._northEast.lat
+        ),
+        countdown = boundsList.length,
+        onLoad = function () {
+
+            if (--countdown === 0) {
+
+                this.options.afterRequest.call(self);
+
+                if (this.options.debug) {
+
+                    this._addResponseBoxes(
+
+                        this._getRequestBoxes()
+                    );
                 }
-            };
+            }
+        },
+        onError = function (bounds, box) {
 
-            if (this.options.requestPerTile) {
+            if (this.options.debug) {
 
-                bboxList = this._view2BBoxes(
-                    this._map.getBounds()._southWest.lng,
-                    this._map.getBounds()._southWest.lat,
-                    this._map.getBounds()._northEast.lng,
-                    this._map.getBounds()._northEast.lat
-                );
-            } else {
-
-                bboxList = new Array(this._map.getBounds());
+                this._removeRequestBox(box);
             }
 
-            countdown = bboxList.length;
+            this._removeRequestedArea(bounds);
+        };
 
-            for (var i = 0; i < bboxList.length; i++) {
 
-                bbox = bboxList[i];
-                x = bbox._southWest.lng;
-                y = bbox._northEast.lat;
+        for (var i = 0; i < boundsList.length; i++) {
 
-                if ((x in this._requested) && (y in this._requested[x]) && (this._requested[x][y] === true)) {
+            bounds = boundsList[i];
 
-                    countdown--;
-                    continue;
+            if (this._isRequestedArea(bounds)) {
+
+                countdown--;
+                continue;
+            }
+
+            this._setRequestedArea(bounds);
+
+            if (this.options.debug) {
+
+                box = this._buildRequestBox(bounds);
+                this._addRequestBox(box);
+            }
+
+            if (beforeRequest) {
+
+                var beforeRequestResult = this.options.beforeRequest.call(this);
+
+                if ( beforeRequestResult === false ) {
+
+                    this.options.afterRequest.call(this);
+
+                    return;
                 }
 
-                if (!(x in this._requested)) {
+                beforeRequest = false;
+            }
 
-                    this._requested[x] = {};
-                }
+            url = this._buildOverpassUrlFromEndPointAndQuery(
+                this.options.endPoint,
+                this._buildOverpassQueryFromQueryAndBounds(this.options.query, bounds)
+            );
 
-                this._requested[x][y] = true;
+            if (this.options.debug) {
 
-                queryWithMapCoordinates = this.options.query.replace(/(\{\{bbox\}\})/g, bbox.toOverpassBBoxString());
-                url = this.options.endPoint + 'interpreter?data=[out:json];'+ queryWithMapCoordinates;
+                this._sendRequest(
+                    url,
+                    onLoad.bind(this),
+                    onError.bind(this, bounds, box)
+                );
+            }
+            else {
 
-                if (beforeRequest) {
-
-                    var beforeRequestResult = this.options.beforeRequest.call(this);
-
-                    if ( beforeRequestResult === false ) {
-
-                        this.options.afterRequest.call(this);
-
-                        return;
-                    }
-
-                    beforeRequest = false;
-                }
-
-                this.sendRequest(url, done);
+                this._sendRequest(
+                    url,
+                    onLoad.bind(this),
+                    onError.bind(this, bounds)
+                );
             }
         }
     },
 
-    sendRequest: function(url, done) {
+    _sendRequest: function(url, onLoad, onError) {
 
         var self = this,
         reference = { 'instance': this };
@@ -393,11 +489,12 @@ L.OverPassLayer = L.FeatureGroup.extend({
 
             if ( self.options.retryOnTimeout ) {
 
-                self.sendRequest( url, done );
+                self._sendRequest( url, onLoad, onError );
             }
             else {
 
-                done();
+                onError();
+                onLoad();
             }
         };
 
@@ -409,10 +506,12 @@ L.OverPassLayer = L.FeatureGroup.extend({
             }
             else {
 
+                onError();
+
                 self.options.onError.call(reference, this);
             }
 
-            done();
+            onLoad();
         };
 
         request.send();
@@ -422,33 +521,33 @@ L.OverPassLayer = L.FeatureGroup.extend({
 
         this._map = map;
 
-        if (map.zoomIndicator) {
+        if (this._map.zoomIndicator) {
 
-            this._zoomControl = map.zoomIndicator;
+            this._zoomControl = this._map.zoomIndicator;
             this._zoomControl._addLayer(this);
         } else {
 
             this._zoomControl = new L.Control.MinZoomIndicator(this.options.minZoomIndicatorOptions);
 
-            map.addControl(this._zoomControl);
+            this._map.addControl(this._zoomControl);
 
             this._zoomControl._addLayer(this);
         }
 
-        if ( !this.options.noInitialRequest ) {
+        if (this.options.debug) {
 
-            this.prepareRequest();
+            this._requestBoxes = L.featureGroup().addTo(this._map);
+            this._responseBoxes = L.featureGroup().addTo(this._map);
         }
 
-        if ( !L.OverPassLayer._initialized ) {
+        if ( !this.options.noInitialRequest ) {
 
-            L.OverPassLayer._initialized = true;
-            map.on('moveend', this.killMyQueries, this);
+            this._prepareRequest();
         }
 
         if (this.options.query.indexOf('({{bbox}})') !== -1) {
 
-            map.on('moveend', this.onMoveEnd, this);
+            this._map.on('moveend', this._prepareRequest, this);
         }
     },
 
@@ -460,10 +559,7 @@ L.OverPassLayer = L.FeatureGroup.extend({
         this._requested = {};
         this._zoomControl._removeLayer(this);
 
-        map.off({
-
-            'moveend': this.onMoveEnd
-        }, this);
+        map.off('moveend', this.onMoveEnd, this);
 
         this._map = null;
     },
