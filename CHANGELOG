@@ -3,9 +3,13 @@
 ## 1.5.0
 * Adds some significant refactor of code.
 * Removes the requestPerTile mode.
+* Removes the killMyQueries functionality.
 * Extends the requests bounds.
 * Adds a debug mode which shows the requests bounds.
 * Invalidates the requests cache on error.
+
+## 1.4.5
+* Fix the requestPerTile mode since the support of killMyQueries broke it.
 
 ## 1.4.4
 * Remove a duplicate / in the kill queries call.
