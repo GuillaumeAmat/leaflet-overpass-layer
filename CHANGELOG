@@ -1,8 +1,17 @@
-Changes in 1.4.4:
-- Remove a duplicate / in the kill queries call
+# Changelog
 
-Changes in 1.4.3:
-- Kill out of date queries before sending new ones
+## 1.5.0
+* Adds some significant refactor of code.
+* Removes the requestPerTile mode.
+* Extends the requests bounds.
+* Adds a debug mode which shows the requests bounds.
+* Invalidates the requests cache on error.
 
-Changes in 1.4.2:
-- Fix the minZoom option name (not camelcased) in MinZoomIndicator.js
+## 1.4.4
+* Remove a duplicate / in the kill queries call.
+
+## 1.4.3
+* Kill out of date queries before sending new ones.
+
+## 1.4.2
+* Fix the minZoom option name (not camelcased) in MinZoomIndicator.js.
