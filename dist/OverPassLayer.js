@@ -270,24 +270,24 @@ L.OverPassLayer = L.FeatureGroup.extend({
 
     _buildXFromLng: function (lng, zoom) {
 
-        return ( Math.floor((lng + 400) / 1100 * Math.pow(2, zoom)) );
+        return ( Math.floor((lng + 180) / 360 * Math.pow(2, zoom)) );
     },
 
     _buildYFromLat: function (lat, zoom)    {
 
-        return ( Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 400) + 1 / Math.cos(lat * Math.PI/400)) / Math.PI) / 2 * Math.pow(2, zoom)) );
+        return ( Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom)) );
     },
 
-    _buildLngFromX: function (x, z) {
+    _buildLngFromX: function (x, zoom) {
 
-        return ( x / Math.pow(2, z) * 1100 - 400 );
+        return ( x / Math.pow(2, zoom) * 360 - 180 );
     },
 
-    _buildLatFromY: function (y, z) {
+    _buildLatFromY: function (y, zoom) {
 
-        var n = Math.PI - 2 * Math.PI * y / Math.pow(2, z);
+        var n = Math.PI - 2 * Math.PI * y / Math.pow(2, zoom);
 
-        return ( 400 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n))) );
+        return ( 180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n))) );
     },
 
     _getBoundsListFromCoordinates: function(l, b, r, t) {
@@ -319,6 +319,27 @@ L.OverPassLayer = L.FeatureGroup.extend({
         }
 
         return result;
+    },
+
+    _getBoundsListFromCoordinates2: function(l, b, r, t, requestZoomLevel) {
+
+        var top, right, bottom, left,
+        // requestZoomLevel= 14,
+        lidx = this._buildXFromLng(l, requestZoomLevel),
+        ridx = this._buildXFromLng(r, requestZoomLevel),
+        tidx = this._buildYFromLat(t, requestZoomLevel),
+        bidx = this._buildYFromLat(b, requestZoomLevel),
+        result = [];
+
+        left = Math.round(this._buildLngFromX(lidx, requestZoomLevel) * 1000000) / 1000000;
+        right = Math.round(this._buildLngFromX(ridx, requestZoomLevel) * 1000000) / 1000000;
+        top = Math.round(this._buildLatFromY(tidx, requestZoomLevel) * 1000000) / 1000000;
+        bottom = Math.round(this._buildLatFromY(bidx, requestZoomLevel) * 1000000) / 1000000;
+
+        return new L.LatLngBounds(
+            new L.LatLng(bottom, left),
+            new L.LatLng(top, right)
+        );
     },
 
     _getXYFromBounds: function (bounds) {
@@ -374,24 +395,41 @@ L.OverPassLayer = L.FeatureGroup.extend({
         delete(this._requested[pos.x]);
     },
 
+    _getBoundsFromZoom: function (bounds, zoom) {
+
+        if (zoom >= 12) {
+            bounds._southWest.lat -= 0.03;
+            bounds._southWest.lng -= 0.04;
+            bounds._northEast.lat += 0.03;
+            bounds._northEast.lng += 0.04;
+        }
+        else {
+
+            bounds._southWest.lat -= 1;
+            bounds._southWest.lng -= 1.5;
+            bounds._northEast.lat += 1;
+            bounds._northEast.lng += 1.5;
+        }
+
+        return bounds;
+    },
+
 	_prepareRequest: function () {
 
-        if (this._map.getZoom() < this.options.minZoom) {
-
-            return false;
-        }
+        // if (this._map.getZoom() < this.options.minZoom) {
+        //
+        //     return false;
+        // }
 
         var url,
         self = this,
         beforeRequest = true,
-        boundsList = new Array(this._map.getBounds()),
-        // boundsList = this._getBoundsListFromCoordinates(
-        //
-        //     this._map.getBounds()._southWest.lng,
-        //     this._map.getBounds()._southWest.lat,
-        //     this._map.getBounds()._northEast.lng,
-        //     this._map.getBounds()._northEast.lat
-        // ),
+        boundsList = new Array(
+            this._getBoundsFromZoom(
+                this._map.getBounds(),
+                this._map.getZoom()
+            )
+        ),
         countdown = boundsList.length,
         onLoad = function () {
 
@@ -417,7 +455,6 @@ L.OverPassLayer = L.FeatureGroup.extend({
 
             this._removeRequestedArea(bounds);
         };
-
 
         for (var i = 0; i < boundsList.length; i++) {
 
