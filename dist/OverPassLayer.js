@@ -384,13 +384,14 @@ L.OverPassLayer = L.FeatureGroup.extend({
         var url,
         self = this,
         beforeRequest = true,
-        boundsList = this._getBoundsListFromCoordinates(
-
-            this._map.getBounds()._southWest.lng,
-            this._map.getBounds()._southWest.lat,
-            this._map.getBounds()._northEast.lng,
-            this._map.getBounds()._northEast.lat
-        ),
+        boundsList = new Array(this._map.getBounds()),
+        // boundsList = this._getBoundsListFromCoordinates(
+        //
+        //     this._map.getBounds()._southWest.lng,
+        //     this._map.getBounds()._southWest.lat,
+        //     this._map.getBounds()._northEast.lng,
+        //     this._map.getBounds()._northEast.lat
+        // ),
         countdown = boundsList.length,
         onLoad = function () {
 

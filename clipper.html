@@ -1,0 +1,101 @@
+<html>
+  <head>
+    <title>Javascript Clipper Library / Boolean operations, ExPolygons / SVG example</title>
+    <script src="lib/clipper.js"></script>
+    <script>
+function draw() {
+  var subj_paths = [[{X:10,Y:10},{X:110,Y:10},{X:110,Y:110},{X:10,Y:110}],
+                      [{X:20,Y:20},{X:20,Y:100},{X:100,Y:100},{X:100,Y:20}]];
+  var clip_paths = [[{X:50,Y:50},{X:150,Y:50},{X:150,Y:150},{X:50,Y:150}],
+                      [{X:60,Y:60},{X:60,Y:140},{X:140,Y:140},{X:140,Y:60}]];
+  var scale = 100;
+  ClipperLib.JS.ScaleUpPaths(subj_paths, scale);
+  ClipperLib.JS.ScaleUpPaths(clip_paths, scale);
+
+  var cpr = new ClipperLib.Clipper();
+  cpr.AddPaths(subj_paths, ClipperLib.PolyType.ptSubject, true);
+  cpr.AddPaths(clip_paths, ClipperLib.PolyType.ptClip, true);
+  var subject_fillType = ClipperLib.PolyFillType.pftNonZero;
+  var clip_fillType = ClipperLib.PolyFillType.pftNonZero;
+  var clipTypes = [ClipperLib.ClipType.ctUnion, ClipperLib.ClipType.ctDifference, ClipperLib.ClipType.ctXor, ClipperLib.ClipType.ctIntersection];
+  var clipTypesTexts = ["Union", "Difference", "Xor", "Intersection"];
+  var solution_paths, solution_polytree, solution_expolygons;
+  var svg, cont = document.getElementById('svgcontainer'), i;
+
+  svg = '<table><tr>';
+
+  for(i = 0; i < clipTypes.length; i++) {
+
+    solution_polytree = new ClipperLib.PolyTree();
+    cpr.Execute(clipTypes[i], solution_polytree, subject_fillType, clip_fillType);
+
+    solution_expolygons = ClipperLib.JS.PolyTreeToExPolygons(solution_polytree);
+
+    var solution_paths = ClipperLib.Clipper.PolyTreeToPaths(solution_polytree);
+
+    svg += '<tr><td>';
+    svg += '<svg style="margin-top:10px; margin-right:10px;margin-bottom:10px;background-color:#dddddd" width="160" height="160">';
+    svg += '<path stroke="black" fill="yellow" stroke-width="2" d="' + paths2string (solution_paths, scale) + '"/>';
+    svg += '</svg></td><td>';
+    svg += '<b>' + clipTypesTexts[i] + ':</b><br>' + JSON.stringify(scaleDownExPolygon(solution_expolygons, scale));
+    svg += '</td></tr>';
+  }
+  svg += '</table>';
+  cont.innerHTML += svg;
+}
+
+function scaleDownExPolygon(exPolygons, scale)
+{
+  var a, i, j, exPolygon, holes, outer, polygon;
+  if (!scale) scale = 1;
+  for (a = 0, alen = exPolygons.length; a < alen; a++)
+  {
+    exPolygon = exPolygons[a];
+    holes = exPolygon.holes;
+    outer = exPolygon.outer;
+    for (i = 0, ilen = holes.length; i < ilen; i++)
+    {
+      polygon = holes[i];
+
+      for (j = 0, jlen = polygon.length; j < jlen; j++)
+      {
+        point = polygon[j];
+        point.X = Number(point.X) / scale;
+        point.Y = Number(point.Y) / scale;
+      }
+    }
+    for (j = 0, jlen = outer.length; j < jlen; j++)
+    {
+      point = outer[j];
+      point.X = Number(point.X) / scale;
+      point.Y = Number(point.Y) / scale;
+    }
+  }
+  return exPolygons;
+}
+
+// Converts Paths to SVG path string
+// and scales down the coordinates
+function paths2string(paths, scale, isline) {
+  var svgpath = "",
+    i, j;
+  if (!scale) scale = 1;
+  for (i = 0; i < paths.length; i++) {
+    for (j = 0; j < paths[i].length; j++) {
+      if (!j) svgpath += "M";
+      else svgpath += "L";
+      svgpath += (paths[i][j].X / scale) + ", " + (paths[i][j].Y / scale);
+    }
+    if (!isline) svgpath += "Z";
+  }
+  if (svgpath == "") svgpath = "M0,0";
+  return svgpath;
+}
+  </script>
+  </head>
+  <body onload="draw()">
+  <h2>Javascript Clipper Library / Boolean operations, ExPolygons / SVG example</h2>
+    This page shows an example of boolean operations on ExPolygons and drawing them using SVG.
+    <div id="svgcontainer"></div>
+  </body>
+</html>
