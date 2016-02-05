@@ -9,23 +9,45 @@ function draw() {
     var clip_paths = [[{X:50,Y:50},{X:150,Y:50},{X:150,Y:150},{X:50,Y:150}],
           [{X:60,Y:60},{X:60,Y:140},{X:140,Y:140},{X:140,Y:60}]];
 
-    var cpr = new ClipperLib.Clipper();
-    cpr.AddPaths(subj_paths, ClipperLib.PolyType.ptSubject, true);
-    cpr.AddPaths(clip_paths, ClipperLib.PolyType.ptClip, true);
-    var subject_fillType = ClipperLib.PolyFillType.pftNonZero;
-    var clip_fillType = ClipperLib.PolyFillType.pftNonZero;
-    var solution_polytree, solution_expolygons;
 
-    solution_polytree = new ClipperLib.PolyTree();
-    cpr.Execute(ClipperLib.ClipType.ctDifference, solution_polytree, subject_fillType, clip_fillType);
 
-    solution_expolygons = ClipperLib.JS.PolyTreeToExPolygons(solution_polytree);
-
-    console.log(solution_expolygons.length);
+    console.log( isFullyRequested() );
 }
 
-  </script>
-  </head>
-  <body onload="draw()">
-  </body>
+    function isFullyRequested(bounds, knownBounds) {
+
+        var clipper = new ClipperLib.Clipper();
+        clipper.AddPaths(subj_paths, ClipperLib.PolyType.ptSubject, true);
+        clipper.AddPaths(clip_paths, ClipperLib.PolyType.ptClip, true);
+        var subject_fillType = ClipperLib.PolyFillType.pftNonZero;
+        var clip_fillType = ClipperLib.PolyFillType.pftNonZero;
+        var solution_polytree, solution_expolygons;
+
+        solution_polytree = new ClipperLib.PolyTree();
+        clipper.Execute(ClipperLib.ClipType.ctDifference, solution_polytree, subject_fillType, clip_fillType);
+
+        solution_expolygons = ClipperLib.JS.PolyTreeToExPolygons(solution_polytree);
+
+        if (solution_expolygons === 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    function _buildClipsFromBounds(bounds) {
+
+        return clips = [
+            { 'X': bounds._southWest.lng, 'Y': bounds._southWest.lat },
+            { 'X': bounds._southWest.lng, 'Y': bounds._northEast.lat },
+            { 'X': bounds._northEast.lng, 'Y': bounds._northEast.lat },
+            { 'X': bounds._northEast.lng, 'Y': bounds._southWest.lat }
+        ];
+    }
+
+    </script>
+    </head>
+    <body onload="draw()">
+    </body>
 </html>
