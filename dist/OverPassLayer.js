@@ -431,7 +431,7 @@ L.OverPassLayer = L.FeatureGroup.extend({
 
         this._layers = {};
         this._ids = {};
-        this._requested = {};
+        this._loadedBounds = [];
     },
 
     _getPoiPopupHTML: function(tags, id) {
@@ -506,94 +506,110 @@ L.OverPassLayer = L.FeatureGroup.extend({
 
         requestBoxes.forEach(function(box) {
 
-            box.setStyle({ 'color': 'black' });
+            box.setStyle({
+                'color': 'black',
+                'weight': 2
+            });
             self._addResponseBox( box );
         });
     },
 
 
+    _isFullyLoadedBounds: function (bounds, loadedBounds) {
 
-    _buildXFromLng: function (lng, zoom) {
-
-        return ( Math.floor((lng + 180) / 360 * Math.pow(2, zoom)) );
-    },
-
-    _buildYFromLat: function (lat, zoom)    {
-
-        return ( Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom)) );
-    },
-
-    _buildLngFromX: function (x, zoom) {
-
-        return ( x / Math.pow(2, zoom) * 360 - 180 );
-    },
-
-    _buildLatFromY: function (y, zoom) {
-
-        var n = Math.PI - 2 * Math.PI * y / Math.pow(2, zoom);
-
-        return ( 180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n))) );
-    },
-
-    _getBoundsListFromCoordinates: function(l, b, r, t) {
-
-        var top, right, bottom, left,
-        requestZoomLevel= 14,
-        lidx = this._buildXFromLng(l, requestZoomLevel),
-        ridx = this._buildXFromLng(r, requestZoomLevel),
-        tidx = this._buildYFromLat(t, requestZoomLevel),
-        bidx = this._buildYFromLat(b, requestZoomLevel),
-        result = [];
-
-        for (var x = lidx; x <= ridx; x++) {
-
-            for (var y = tidx; y <= bidx; y++) {
-
-                left = Math.round(this._buildLngFromX(x, requestZoomLevel) * 1000000) / 1000000;
-                right = Math.round(this._buildLngFromX(x + 1, requestZoomLevel) * 1000000) / 1000000;
-                top = Math.round(this._buildLatFromY(y, requestZoomLevel) * 1000000) / 1000000;
-                bottom = Math.round(this._buildLatFromY(y + 1, requestZoomLevel) * 1000000) / 1000000;
-
-                result.push(
-                    new L.LatLngBounds(
-                        new L.LatLng(bottom, left),
-                        new L.LatLng(top, right)
-                    )
-                );
-            }
+        if (loadedBounds.length === 0) {
+            return false;
         }
 
-        return result;
-    },
+        var solutionExPolygons,
+        subjectClips = this._buildClipsFromBounds([bounds]),
+        knownClips = this._buildClipsFromBounds(loadedBounds),
+        clipper = new ClipperLib.Clipper();
 
-    _getBoundsListFromCoordinates2: function(l, b, r, t, requestZoomLevel) {
+        clipper.AddPaths(subjectClips, ClipperLib.PolyType.ptSubject, true);
+        clipper.AddPaths(knownClips, ClipperLib.PolyType.ptClip, true);
+        var solutionPolyTree = new ClipperLib.PolyTree();
 
-        var top, right, bottom, left,
-        // requestZoomLevel= 14,
-        lidx = this._buildXFromLng(l, requestZoomLevel),
-        ridx = this._buildXFromLng(r, requestZoomLevel),
-        tidx = this._buildYFromLat(t, requestZoomLevel),
-        bidx = this._buildYFromLat(b, requestZoomLevel),
-        result = [];
-
-        left = Math.round(this._buildLngFromX(lidx, requestZoomLevel) * 1000000) / 1000000;
-        right = Math.round(this._buildLngFromX(ridx, requestZoomLevel) * 1000000) / 1000000;
-        top = Math.round(this._buildLatFromY(tidx, requestZoomLevel) * 1000000) / 1000000;
-        bottom = Math.round(this._buildLatFromY(bidx, requestZoomLevel) * 1000000) / 1000000;
-
-        return new L.LatLngBounds(
-            new L.LatLng(bottom, left),
-            new L.LatLng(top, right)
+        clipper.Execute(
+            ClipperLib.ClipType.ctDifference,
+            solutionPolyTree,
+            ClipperLib.PolyFillType.pftNonZero,
+            ClipperLib.PolyFillType.pftNonZero
         );
+
+        solutionExPolygons = ClipperLib.JS.PolyTreeToExPolygons(solutionPolyTree);
+
+        console.log('subject', subjectClips);
+        console.log('known', knownClips);
+        console.log('solution', solutionExPolygons);
+        if (solutionExPolygons.length === 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
     },
 
-    _getXYFromBounds: function (bounds) {
+    _getLoadedBounds: function (bounds) {
 
-        return {
-            'x': bounds._southWest.lng,
-            'y': bounds._northEast.lat
-        };
+        return this._loadedBounds;
     },
+
+    _setLoadedBounds: function (bounds) {
+
+        this._loadedBounds.push(bounds);
+    },
+
+    _buildClipsFromBounds: function (bounds) {
+
+        var clips = [];
+
+        bounds.forEach(function (bound) {
+            clips.push([
+                {
+                    'X': bound._southWest.lng * 1000000,
+                    'Y': bound._southWest.lat * 1000000
+                },
+                {
+                    'X': bound._southWest.lng * 1000000,
+                    'Y': bound._northEast.lat * 1000000
+                },
+                {
+                    'X': bound._northEast.lng * 1000000,
+                    'Y': bound._northEast.lat * 1000000
+                },
+                {
+                    'X': bound._northEast.lng * 1000000,
+                    'Y': bound._southWest.lat * 1000000
+                }
+            ]);
+        });
+
+        return clips;
+    },
+
+    _buildBoundsFromClips: function (clips) {
+
+        var bounds = [];
+
+        clips.forEach(function (clip) {
+            bounds.push(
+                new L.LatLngBounds(
+                    new L.LatLng(
+                        clip[0].Y / 1000000,
+                        clip[0].X / 1000000
+                    ),
+                    new L.LatLng(
+                        clip[2].Y / 1000000,
+                        clip[2].X / 1000000
+                    )
+                )
+            );
+        });
+
+        return bounds;
+    },
+
 
     _buildOverpassQueryFromQueryAndBounds: function (query, bounds){
 
@@ -607,37 +623,6 @@ L.OverPassLayer = L.FeatureGroup.extend({
     _buildOverpassUrlFromEndPointAndQuery: function (endPoint, query){
 
         return endPoint + 'interpreter?data=[out:json];'+ query;
-    },
-
-    _isRequestedArea: function (bounds) {
-
-        var pos = this._getXYFromBounds(bounds);
-
-        if ((pos.x in this._requested) && (pos.y in this._requested[pos.x]) && (this._requested[pos.x][pos.y] === true)) {
-
-            return true;
-        }
-
-        return false;
-    },
-
-    _setRequestedArea: function (bounds) {
-
-        var pos = this._getXYFromBounds(bounds);
-
-        if (!(pos.x in this._requested)) {
-
-            this._requested[pos.x] = {};
-        }
-
-        this._requested[pos.x][pos.y] = true;
-    },
-
-    _removeRequestedArea: function (bounds) {
-
-        var pos = this._getXYFromBounds(bounds);
-
-        delete(this._requested[pos.x]);
     },
 
     _getBoundsFromZoom: function (bounds, zoom) {
@@ -662,26 +647,23 @@ L.OverPassLayer = L.FeatureGroup.extend({
         var url,
         self = this,
         beforeRequest = true,
-        boundsList = new Array(
-            this._getBoundsFromZoom(
-                this._map.getBounds(),
-                this._map.getZoom()
-            )
+        loadedBounds = this._getLoadedBounds(),
+        bounds = this._getBoundsFromZoom(
+            this._map.getBounds(),
+            this._map.getZoom()
         ),
-        countdown = boundsList.length,
-        onLoad = function () {
+        onLoad = function (bounds) {
 
-            if (--countdown === 0) {
+            this.options.afterRequest.call(self);
 
-                this.options.afterRequest.call(self);
+            this._setLoadedBounds(bounds);
 
-                if (this.options.debug) {
+            if (this.options.debug) {
 
-                    this._addResponseBoxes(
+                this._addResponseBoxes(
 
-                        this._getRequestBoxes()
-                    );
-                }
+                    this._getRequestBoxes()
+                );
             }
         },
         onError = function (bounds, box) {
@@ -690,63 +672,54 @@ L.OverPassLayer = L.FeatureGroup.extend({
 
                 this._removeRequestBox(box);
             }
-
-            this._removeRequestedArea(bounds);
         };
 
-        for (var i = 0; i < boundsList.length; i++) {
 
-            bounds = boundsList[i];
+        if ( this._isFullyLoadedBounds(bounds, loadedBounds) ) {
 
-            if (this._isRequestedArea(bounds)) {
+            return;
+        }
 
-                countdown--;
-                continue;
+        if (this.options.debug) {
+
+            box = this._buildRequestBox(bounds);
+            this._addRequestBox(box);
+        }
+
+        if (beforeRequest) {
+
+            var beforeRequestResult = this.options.beforeRequest.call(this);
+
+            if ( beforeRequestResult === false ) {
+
+                this.options.afterRequest.call(this);
+
+                return;
             }
 
-            this._setRequestedArea(bounds);
+            beforeRequest = false;
+        }
 
-            if (this.options.debug) {
+        url = this._buildOverpassUrlFromEndPointAndQuery(
+            this.options.endPoint,
+            this._buildOverpassQueryFromQueryAndBounds(this.options.query, bounds)
+        );
 
-                box = this._buildRequestBox(bounds);
-                this._addRequestBox(box);
-            }
+        if (this.options.debug) {
 
-            if (beforeRequest) {
-
-                var beforeRequestResult = this.options.beforeRequest.call(this);
-
-                if ( beforeRequestResult === false ) {
-
-                    this.options.afterRequest.call(this);
-
-                    return;
-                }
-
-                beforeRequest = false;
-            }
-
-            url = this._buildOverpassUrlFromEndPointAndQuery(
-                this.options.endPoint,
-                this._buildOverpassQueryFromQueryAndBounds(this.options.query, bounds)
+            this._sendRequest(
+                url,
+                onLoad.bind(this, bounds),
+                onError.bind(this, bounds, box)
             );
+        }
+        else {
 
-            if (this.options.debug) {
-
-                this._sendRequest(
-                    url,
-                    onLoad.bind(this),
-                    onError.bind(this, bounds, box)
-                );
-            }
-            else {
-
-                this._sendRequest(
-                    url,
-                    onLoad.bind(this),
-                    onError.bind(this, bounds)
-                );
-            }
+            this._sendRequest(
+                url,
+                onLoad.bind(this, bounds),
+                onError.bind(this, bounds)
+            );
         }
     },
 
@@ -832,7 +805,7 @@ L.OverPassLayer = L.FeatureGroup.extend({
         L.LayerGroup.prototype.onRemove.call(this, map);
 
         this._ids = {};
-        this._requested = {};
+        this._loadedBounds = [];
         this._zoomControl._removeLayer(this);
 
         map.off('moveend', this.onMoveEnd, this);
