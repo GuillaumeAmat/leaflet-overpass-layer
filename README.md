@@ -2,35 +2,8 @@
 
 This plugin is a fork of https://github.com/kartenkarsten/leaflet-layer-overpass
 
-Here is a list of changes made after the fork:
-
-* Replace `{{bbox}}` instead of `BBOX` in Overpass requests
-* Code cleanup
-
- * JSHint warnings fixed
- * Tabs instead of spaces for indentation
- * Spaces between blocks
-
-* Options are now in camelCase: `endpoint` is `endPoint` and so on
-* Rename the `callback` option to `onSuccess`
-* Add the `timeout` option
-* Add the `onError` and `onTimeout` callbacks
-* Add the ability to retry a request when it returned a timeout
-* If beforeRequest return false, the request is not launched
-* Add the noInitialRequest option to prevent the initial request to be launched if necessary
-* Adds some significant refactor of code.
-* Removes the requestPerTile mode.
-* Extends the requests bounds.
-* Adds a debug mode which shows the requests bounds.
-* Invalidates the requests cache on error.
-
-The first release of this fork is the version **1.1.0**.
-
-
 ## What is it?
 A [Leaflet](http://leafletjs.com/) plugin to create a custom POI overlay - thanks to the [OSM](http://www.openstreetmap.org/) dataset and the [Overpass API](http://overpass-api.de/)
-
-checkout the [demo](http://kartenkarsten.github.io/leaflet-layer-overpass/demo/)
 
 
 ## Installation
@@ -60,7 +33,7 @@ map = new L.Map('map')
 
 opl = new L.OverPassLayer({
 
-    query: 'node({{bbox}})['amenity'='post_box'];out;',
+    'query': '(node({{bbox}})[organic];node({{bbox}})[second_hand];);out qt;',
 });
 
 map.addLayer(opl);
@@ -72,11 +45,13 @@ You can specify an options object as an argument of L.OverPassLayer.
 ```javascript
 options: {
 
+  'debug': false,
   'minZoom': 15,
-  'requestPerTile': true,
-  'endPoint': 'http://overpass.osm.rambler.ru/cgi/',
-  'query': 'node({{bbox}})["amenity"="post_box"];out;',
+  'endPoint': 'http://overpass-api.de/api/',
+  'query': '(node({{bbox}})[organic];node({{bbox}})[second_hand];);out qt;',
   'timeout': 30 * 1000, // Milliseconds
+  'retryOnTimeout': false,
+  'noInitialRequest': false,
   'minZoomIndicatorOptions': {
 
     'position': 'topright',
@@ -90,11 +65,6 @@ options: {
   'onTimeout': function(xhr) {},
 };
 ```
-
-## Used by
-- [Gdzie](http://gdzie.bl.ee/#!7/51.495/20.995/)
-- [pois.elblogdehumitos.com.ar](http://pois.elblogdehumitos.com.ar/)
-- [briefkastenkarte.de](http://briefkastenkarte.de/)
 
 ## Dependencies
 - Leaflet (tried with version 0.6.2, 0.7.3)
