@@ -28,12 +28,12 @@ L.OverPassLayer = L.FeatureGroup.extend({
                 var pos, popup, circle,
                 e = data.elements[i];
 
-                if ( e.id in this.instance._ids ) {
+                if ( e.id in this._ids ) {
 
                     continue;
                 }
 
-                this.instance._ids[e.id] = true;
+                this._ids[e.id] = true;
 
                 if ( e.type === 'node' ) {
 
@@ -43,7 +43,7 @@ L.OverPassLayer = L.FeatureGroup.extend({
                     pos = new L.LatLng(e.center.lat, e.center.lon);
                 }
 
-                popup = this.instance._getPoiPopupHTML(e.tags, e.id);
+                popup = this._getPoiPopupHTML(e.tags, e.id);
                 circle = L.circle(pos, 50, {
 
                     'color': 'green',
@@ -52,7 +52,7 @@ L.OverPassLayer = L.FeatureGroup.extend({
                 })
                 .bindPopup(popup);
 
-                this.instance.addLayer(circle);
+                this.addLayer(circle);
             }
         },
 
@@ -75,9 +75,9 @@ L.OverPassLayer = L.FeatureGroup.extend({
 
         L.Util.setOptions(this, options);
 
-        this._layers = {};
         this._ids = {};
         this._loadedBounds = [];
+        this._requestInProgress = false;
     },
 
     _getPoiPopupHTML: function(tags, id) {
@@ -289,6 +289,41 @@ L.OverPassLayer = L.FeatureGroup.extend({
         return bounds;
     },
 
+    _setRequestInProgress: function (isInProgress) {
+
+        this._requestInProgress = isInProgress;
+    },
+
+    _isRequestInProgress: function () {
+
+        return this._requestInProgress;
+    },
+
+    _hasNextRequest: function () {
+
+        if ( this._nextRequest ) {
+
+            return true;
+        }
+
+        return false;
+    },
+
+    _getNextRequest: function (nextRequest) {
+
+        return this._nextRequest;
+    },
+
+    _setNextRequest: function (nextRequest) {
+
+        this._nextRequest = nextRequest;
+    },
+
+    _removeNextRequest: function () {
+
+        this._nextRequest = null;
+    },
+
 	_prepareRequest: function () {
 
         if (this._map.getZoom() < this.options.minZoom) {
@@ -296,126 +331,143 @@ L.OverPassLayer = L.FeatureGroup.extend({
             return false;
         }
 
-        var url,
-        self = this,
-        beforeRequest = true,
-        loadedBounds = this._getLoadedBounds(),
+        var loadedBounds = this._getLoadedBounds(),
         bounds = this._buildBoundsFromZoom(
             this._map.getBounds(),
             this._map.getZoom()
         ),
-        onLoad = function (bounds) {
-
-            this.options.afterRequest.call(self);
-
-            this._setLoadedBounds(bounds);
-
-            if (this.options.debug) {
-
-                this._addResponseBoxes(
-
-                    this._getRequestBoxes()
-                );
-            }
-        },
-        onError = function (bounds, box) {
-
-            if (this.options.debug) {
-
-                this._removeRequestBox(box);
-            }
-        };
-
+        url = this._buildOverpassUrlFromEndPointAndQuery(
+            this.options.endPoint,
+            this._buildOverpassQueryFromQueryAndBounds(this.options.query, bounds)
+        ),
+        nextRequest = this._sendRequest.bind(this, url, bounds);
 
         if ( this._isFullyLoadedBounds(bounds, loadedBounds) ) {
 
             return;
         }
 
-        if (this.options.debug) {
+        if ( this._isRequestInProgress() ) {
 
-            box = this._buildRequestBox(bounds);
-            this._addRequestBox(box);
-        }
-
-        if (beforeRequest) {
-
-            var beforeRequestResult = this.options.beforeRequest.call(this);
-
-            if ( beforeRequestResult === false ) {
-
-                this.options.afterRequest.call(this);
-
-                return;
-            }
-
-            beforeRequest = false;
-        }
-
-        url = this._buildOverpassUrlFromEndPointAndQuery(
-            this.options.endPoint,
-            this._buildOverpassQueryFromQueryAndBounds(this.options.query, bounds)
-        );
-
-        if (this.options.debug) {
-
-            this._sendRequest(
-                url,
-                onLoad.bind(this, bounds),
-                onError.bind(this, bounds, box)
-            );
+            this._setNextRequest(nextRequest);
         }
         else {
 
-            this._sendRequest(
-                url,
-                onLoad.bind(this, bounds),
-                onError.bind(this, bounds)
-            );
+            this._removeNextRequest();
+            nextRequest();
         }
     },
 
-    _sendRequest: function(url, onLoad, onError) {
+    _sendRequest: function(url, bounds) {
 
         var self = this,
-        reference = { 'instance': this };
+        request = new XMLHttpRequest(),
+        beforeRequestResult = this.options.beforeRequest();
 
-        request = new XMLHttpRequest();
+        if ( beforeRequestResult === false ) {
+
+            this.options.afterRequest();
+
+            return;
+        }
+
+        this._setRequestInProgress(true);
+
+        if (this.options.debug) {
+
+            this._addRequestBox(
+                this._buildRequestBox(bounds)
+            );
+        }
+
         request.open('GET', url, true);
         request.timeout = this.options.timeout;
 
         request.ontimeout = function () {
 
-            self.options.onTimeout.call(reference, this);
-
-            if ( self.options.retryOnTimeout ) {
-
-                self._sendRequest( url, onLoad, onError );
-            }
-            else {
-
-                onError();
-                onLoad();
-            }
+            self._onRequestTimeout(this, url, bounds);
         };
 
         request.onload = function () {
 
-            if (this.status >= 200 && this.status < 400) {
-
-                self.options.onSuccess.call(reference, JSON.parse(this.response));
-            }
-            else {
-
-                onError();
-
-                self.options.onError.call(reference, this);
-            }
-
-            onLoad();
+            self._onRequestLoad(this, bounds);
         };
 
         request.send();
+    },
+
+    _onRequestLoad: function (xhr, bounds) {
+
+        if (xhr.status >= 200 && xhr.status < 400) {
+
+            this.options.onSuccess(JSON.parse(xhr.response));
+
+            this._onRequestLoadCallback(bounds);
+        }
+        else {
+
+            this._onRequestErrorCallback(bounds);
+
+            this.options.onError(xhr);
+        }
+
+        this._onRequestCompleteCallback(bounds);
+    },
+
+    _onRequestTimeout: function (xhr, url, bounds) {
+
+        this.options.onTimeout(xhr);
+
+        if ( this.options.retryOnTimeout ) {
+
+            this._sendRequest(url);
+        }
+        else {
+
+            this._onRequestErrorCallback(bounds);
+            this._onRequestCompleteCallback(bounds);
+        }
+    },
+
+    _onRequestLoadCallback: function (bounds) {
+
+        this._setLoadedBounds(bounds);
+
+        if (this.options.debug) {
+
+            this._addResponseBoxes(
+
+                this._getRequestBoxes()
+            );
+        }
+    },
+
+    _onRequestErrorCallback: function (bounds) {
+
+        if (this.options.debug) {
+
+            this._removeRequestBox(
+                this._buildRequestBox(bounds)
+            );
+        }
+    },
+
+    _onRequestCompleteCallback: function (bounds) {
+
+        this.options.afterRequest();
+
+        if ( this._hasNextRequest() ) {
+
+            var nextRequest = this._getNextRequest();
+
+            this._removeNextRequest();
+
+            nextRequest();
+        }
+        else {
+
+            this._setRequestInProgress(false);
+        }
     },
 
     onAdd: function (map) {
@@ -458,6 +510,7 @@ L.OverPassLayer = L.FeatureGroup.extend({
 
         this._ids = {};
         this._loadedBounds = [];
+        this._requestInProgress = false;
         this._zoomControl._removeLayer(this);
 
         map.off('moveend', this.onMoveEnd, this);
