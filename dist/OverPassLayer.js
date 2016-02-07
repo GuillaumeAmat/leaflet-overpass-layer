@@ -622,14 +622,23 @@ L.OverPassLayer = L.FeatureGroup.extend({
         return endPoint + 'interpreter?data=[out:json];'+ query;
     },
 
-    _getBoundsFromZoom: function (bounds, zoom) {
+    _buildBoundsFromZoom: function (bounds, zoom) {
 
-        if (zoom >= 12) {
-            bounds._southWest.lat -= 0.03;
-            bounds._southWest.lng -= 0.04;
-            bounds._northEast.lat += 0.03;
-            bounds._northEast.lng += 0.04;
-        }
+        // if (zoom >= 8) {
+        //     bounds._southWest.lat -= 0.06;
+        //     bounds._southWest.lng -= 0.08;
+        //     bounds._northEast.lat += 0.06;
+        //     bounds._northEast.lng += 0.08;
+        // }
+        // else {
+            var width = Math.abs( bounds._northEast.lng - bounds._southWest.lng ),
+            height = Math.abs( bounds._northEast.lat - bounds._southWest.lat );
+
+            bounds._southWest.lat -= height / 4;
+            bounds._southWest.lng -= width / 2;
+            bounds._northEast.lat += height / 4;
+            bounds._northEast.lng += width / 2;
+        // }
 
         return bounds;
     },
@@ -645,7 +654,7 @@ L.OverPassLayer = L.FeatureGroup.extend({
         self = this,
         beforeRequest = true,
         loadedBounds = this._getLoadedBounds(),
-        bounds = this._getBoundsFromZoom(
+        bounds = this._buildBoundsFromZoom(
             this._map.getBounds(),
             this._map.getZoom()
         ),
