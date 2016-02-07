@@ -10,25 +10,34 @@ function draw() {
           [{X:60,Y:60},{X:60,Y:140},{X:140,Y:140},{X:140,Y:60}]];
 
 
+    var knownBounds = _buildBoundsFromClips(clip_paths),
+    bounds = _buildBoundsFromClips(subj_paths);
 
-    console.log( isFullyRequested() );
+    console.log( isFullyRequested(bounds, knownBounds) );
 }
 
     function isFullyRequested(bounds, knownBounds) {
 
-        var clipper = new ClipperLib.Clipper();
-        clipper.AddPaths(subj_paths, ClipperLib.PolyType.ptSubject, true);
-        clipper.AddPaths(clip_paths, ClipperLib.PolyType.ptClip, true);
-        var subject_fillType = ClipperLib.PolyFillType.pftNonZero;
-        var clip_fillType = ClipperLib.PolyFillType.pftNonZero;
-        var solution_polytree, solution_expolygons;
+        var solutionExPolygons,
+        subjectClips = _buildClipsFromBounds(bounds),
+        knownClips = _buildClipsFromBounds(knownBounds),
+        clipper = new ClipperLib.Clipper(),
+        solutionPolyTree = new ClipperLib.PolyTree();
 
-        solution_polytree = new ClipperLib.PolyTree();
-        clipper.Execute(ClipperLib.ClipType.ctDifference, solution_polytree, subject_fillType, clip_fillType);
+        clipper.AddPaths(subjectClips, ClipperLib.PolyType.ptSubject, true);
+        clipper.AddPaths(knownClips, ClipperLib.PolyType.ptClip, true);
 
-        solution_expolygons = ClipperLib.JS.PolyTreeToExPolygons(solution_polytree);
+        clipper.Execute(
+            ClipperLib.ClipType.ctDifference,
+            solutionPolyTree,
+            ClipperLib.PolyFillType.pftNonZero,
+            ClipperLib.PolyFillType.pftNonZero
+        );
 
-        if (solution_expolygons === 0) {
+        solutionExPolygons = ClipperLib.JS.PolyTreeToExPolygons(solutionPolyTree);
+
+        console.log(solutionExPolygons);
+        if (solutionExPolygons.length === 0) {
             return true;
         }
         else {
@@ -38,12 +47,38 @@ function draw() {
 
     function _buildClipsFromBounds(bounds) {
 
-        return clips = [
-            { 'X': bounds._southWest.lng, 'Y': bounds._southWest.lat },
-            { 'X': bounds._southWest.lng, 'Y': bounds._northEast.lat },
-            { 'X': bounds._northEast.lng, 'Y': bounds._northEast.lat },
-            { 'X': bounds._northEast.lng, 'Y': bounds._southWest.lat }
-        ];
+        var clips = [];
+
+        bounds.forEach(function (bound) {
+            clips.push([
+                { 'X': bound._southWest.lng, 'Y': bound._southWest.lat },
+                { 'X': bound._southWest.lng, 'Y': bound._northEast.lat },
+                { 'X': bound._northEast.lng, 'Y': bound._northEast.lat },
+                { 'X': bound._northEast.lng, 'Y': bound._southWest.lat }
+            ]);
+        });
+
+        return clips;
+    }
+
+    function _buildBoundsFromClips(clips) {
+
+        var bounds = [];
+
+        clips.forEach(function (clip) {
+            bounds.push({
+                '_southWest': {
+                    'lng': clip[0].X,
+                    'lat': clip[0].Y
+                },
+                '_northEast': {
+                    'lng': clip[2].X,
+                    'lat': clip[2].Y
+                }
+            });
+        });
+
+        return bounds;
     }
 
     </script>
