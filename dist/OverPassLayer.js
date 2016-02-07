@@ -524,11 +524,11 @@ L.OverPassLayer = L.FeatureGroup.extend({
         var solutionExPolygons,
         subjectClips = this._buildClipsFromBounds([bounds]),
         knownClips = this._buildClipsFromBounds(loadedBounds),
-        clipper = new ClipperLib.Clipper();
+        clipper = new ClipperLib.Clipper(),
+        solutionPolyTree = new ClipperLib.PolyTree();
 
         clipper.AddPaths(subjectClips, ClipperLib.PolyType.ptSubject, true);
         clipper.AddPaths(knownClips, ClipperLib.PolyType.ptClip, true);
-        var solutionPolyTree = new ClipperLib.PolyTree();
 
         clipper.Execute(
             ClipperLib.ClipType.ctDifference,
@@ -539,9 +539,6 @@ L.OverPassLayer = L.FeatureGroup.extend({
 
         solutionExPolygons = ClipperLib.JS.PolyTreeToExPolygons(solutionPolyTree);
 
-        console.log('subject', subjectClips);
-        console.log('known', knownClips);
-        console.log('solution', solutionExPolygons);
         if (solutionExPolygons.length === 0) {
             return true;
         }

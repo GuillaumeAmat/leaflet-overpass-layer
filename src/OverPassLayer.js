@@ -170,11 +170,11 @@ L.OverPassLayer = L.FeatureGroup.extend({
         var solutionExPolygons,
         subjectClips = this._buildClipsFromBounds([bounds]),
         knownClips = this._buildClipsFromBounds(loadedBounds),
-        clipper = new ClipperLib.Clipper();
+        clipper = new ClipperLib.Clipper(),
+        solutionPolyTree = new ClipperLib.PolyTree();
 
         clipper.AddPaths(subjectClips, ClipperLib.PolyType.ptSubject, true);
         clipper.AddPaths(knownClips, ClipperLib.PolyType.ptClip, true);
-        var solutionPolyTree = new ClipperLib.PolyTree();
 
         clipper.Execute(
             ClipperLib.ClipType.ctDifference,
