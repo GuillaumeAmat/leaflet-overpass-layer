@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.0
+* The request bounding box is larger than the requested one.
+* A new collision method is used to prevent requests on already loaded bounding boxes.
+* Only one request at a time ;)
+
 ## 1.5.3
 * Reduce the size of the requests' areas.
 
