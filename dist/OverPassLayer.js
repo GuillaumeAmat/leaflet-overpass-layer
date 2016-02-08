@@ -685,8 +685,7 @@ L.OverPassLayer = L.FeatureGroup.extend({
             return false;
         }
 
-        var loadedBounds = this._getLoadedBounds(),
-        bounds = this._buildBoundsFromZoom(
+        var bounds = this._buildBoundsFromZoom(
             this._map.getBounds(),
             this._map.getZoom()
         ),
@@ -695,11 +694,6 @@ L.OverPassLayer = L.FeatureGroup.extend({
             this._buildOverpassQueryFromQueryAndBounds(this.options.query, bounds)
         ),
         nextRequest = this._sendRequest.bind(this, url, bounds);
-
-        if ( this._isFullyLoadedBounds(bounds, loadedBounds) ) {
-
-            return;
-        }
 
         if ( this._isRequestInProgress() ) {
 
@@ -713,6 +707,14 @@ L.OverPassLayer = L.FeatureGroup.extend({
     },
 
     _sendRequest: function(url, bounds) {
+
+        var loadedBounds = this._getLoadedBounds();
+
+        if ( this._isFullyLoadedBounds(bounds, loadedBounds) ) {
+
+            this._setRequestInProgress(false);
+            return;
+        }
 
         var self = this,
         request = new XMLHttpRequest(),
