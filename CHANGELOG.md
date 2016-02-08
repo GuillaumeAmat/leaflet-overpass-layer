@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.6.1
+* Don't launch the next request if its area is already requested.
+
 ## 1.6.0
 * The request bounding box is larger than the requested one.
 * A new collision method is used to prevent requests on already loaded bounding boxes.
