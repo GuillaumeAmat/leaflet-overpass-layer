@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.6.2
+* Builds a bounding box without taking care of a zoom level.
+
 ## 1.6.1
 * Don't launch the next request if its area is already requested.
 
