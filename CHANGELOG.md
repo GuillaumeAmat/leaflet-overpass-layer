@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.6.3
+* Updates the package.json to publish the module to npmjs.com.
+
 ## 1.6.2
 * Builds a bounding box without taking care of a zoom level.
 
