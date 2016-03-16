@@ -1,13 +1,13 @@
 {
   "name": "leaflet-overpass-layer",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "homepage": "https://github.com/GuillaumeAmat/leaflet-overpass-layer",
   "authors": [
     "Karsten Hinz <k.hinz@tu-bs.de>",
     "Knut Hühne <knut@k-nut.eu>",
     "Guillaume Amat <guillaume@amat.io>"
   ],
-  "description": "Simply add an overpass layer to a leafleat map",
+  "description": "This is an simple way to bring OSM data as POI overlay on your leaflet Map",
   "main": "dist/OverPassLayer.min.js",
   "keywords": [
     "leaflet",
