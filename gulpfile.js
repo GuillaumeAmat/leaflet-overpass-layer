@@ -5,7 +5,6 @@ var rename = require('gulp-rename');
 
 gulp.task('default', function() {
   return gulp.src([
-      'lib/clipper.js',
       './src/*.js'
     ])
     .pipe(concat('OverPassLayer.js'))

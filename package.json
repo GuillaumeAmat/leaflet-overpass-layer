@@ -1,7 +1,7 @@
 {
   "name": "leaflet-overpass-layer",
   "description": "This is an simple way to bring OSM data as POI overlay on your leaflet Map",
-  "version": "1.6.3",
+  "version": "1.7.0",
   "main": "dist/OverPassLayer.min.js",
   "devDependencies": {
     "gulp-concat": "^2.5.0",
@@ -9,7 +9,10 @@
     "gulp": "^3.8.11",
     "gulp-uglify": "^1.1.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "js-clipper": "^1.0.1",
+    "leaflet": "^0.7.7"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -28,6 +31,9 @@
   "bugs": {
     "url": "https://github.com/GuillaumeAmat/leaflet-overpass-layer/issues"
   },
-  "author": ["Karsten Hinz", "Guillaume Amat"],
+  "author": [
+    "Karsten Hinz",
+    "Guillaume Amat"
+  ],
   "license": "MIT"
 }
