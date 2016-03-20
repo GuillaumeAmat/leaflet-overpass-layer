@@ -7,15 +7,26 @@ A [Leaflet](http://leafletjs.com/) plugin to create a custom POI overlay - thank
 
 
 ## Installation
-You can use bower to install leaflet-layer-overpass.
 
-Simply run
+### NPM
+
 ```bash
-$ bower install --save leaflet-layer-overpass
+$ npm install leaflet-layer-overpass
 ```
-After that you can include and use the `OverpassLayer.css` and `OverpassLayer.js` files (or `OverPassLayer.min.js` if you want the minified version) from the `dist` folder in your html.
 
-## How to use it?
+### Bower
+
+If you use bower to install leaflet-layer-overpass, you need to load [JsClipper](https://github.com/mathisonian/JsClipper) first.
+
+```bash
+$ bower install leaflet-layer-overpass
+```
+
+## Usage
+
+You can include and use the `OverpassLayer.css` and `OverpassLayer.js` files (or `OverPassLayer.min.js` if you want the minified version) from the `dist` folder in your html.
+
+
 ```javascript
 var attr_osm = 'Map data &copy; <a href="http://openstreetmap.org/">OpenStreetMap</a> contributors',
 
@@ -67,7 +78,9 @@ options: {
 ```
 
 ## Dependencies
-- Leaflet (tried with version 0.6.2, 0.7.3)
+
+* [Leaflet](https://github.com/Leaflet/Leaflet) (tried with version 0.6.2, 0.7.3)
+* [JsClipper](https://github.com/mathisonian/JsClipper) (tried with version 1.0.1)
 
 ## Development
 
