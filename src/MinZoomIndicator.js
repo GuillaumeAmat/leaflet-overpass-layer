@@ -1,108 +1,129 @@
-L.Control.MinZoomIndicator = L.Control.extend({
 
-    options: {
+(function (factory, window) {
 
-    },
+    // define an AMD module that relies on 'leaflet'
+    if (typeof define === 'function' && define.amd) {
+        define(['leaflet'], factory);
 
-    _layers: {},
+    // define a Common JS module that relies on 'leaflet'
+    } else if (typeof exports === 'object') {
+        module.exports = factory(require('leaflet'));
+    }
 
-    initialize: function (options) {
+    // attach your plugin to the global 'L' variable
+    if (typeof window !== 'undefined' && window.L) {
+        window.L.Control.MinZoomIndicator = factory(L);
+    }
+}(function (L) {
+    
+    var MinZoomIndicator = L.Control.extend({
 
-        L.Util.setOptions(this, options);
+        options: {
 
-        this._layers = {};
-    },
+        },
 
-    _addLayer: function(layer) {
+        _layers: {},
 
-        var minZoom = 15;
+        initialize: function (options) {
 
-        if (layer.options.minZoom) {
+            L.Util.setOptions(this, options);
 
-            minZoom = layer.options.minZoom;
-        }
+            this._layers = {};
+        },
 
-        this._layers[layer._leaflet_id] = minZoom;
+        _addLayer: function(layer) {
 
-        this._updateBox(null);
-    },
+            var minZoom = 15;
 
-    _removeLayer: function(layer) {
+            if (layer.options.minZoom) {
 
-        this._layers[layer._leaflet_id] = null;
-
-        this._updateBox(null);
-    },
-
-    _getMinZoomLevel: function() {
-
-        var key,
-        minZoomLevel =- 1;
-
-        for(key in this._layers) {
-
-            if ( this._layers[key] !== null && this._layers[key] > minZoomLevel ) {
-
-                minZoomLevel = this._layers[key];
+                minZoom = layer.options.minZoom;
             }
-        }
 
-        return minZoomLevel;
-    },
+            this._layers[layer._leaflet_id] = minZoom;
+
+            this._updateBox(null);
+        },
+
+        _removeLayer: function(layer) {
+
+            this._layers[layer._leaflet_id] = null;
+
+            this._updateBox(null);
+        },
+
+        _getMinZoomLevel: function() {
+
+            var key,
+            minZoomLevel =- 1;
+
+            for(key in this._layers) {
+
+                if ( this._layers[key] !== null && this._layers[key] > minZoomLevel ) {
+
+                    minZoomLevel = this._layers[key];
+                }
+            }
+
+            return minZoomLevel;
+        },
 
 
-    _updateBox: function (event) {
+        _updateBox: function (event) {
 
-        var minZoomLevel = this._getMinZoomLevel();
+            var minZoomLevel = this._getMinZoomLevel();
 
-        if (event !== null) {
+            if (event !== null) {
 
-            L.DomEvent.preventDefault(event);
-        }
+                L.DomEvent.preventDefault(event);
+            }
 
-        if (minZoomLevel == -1) {
+            if (minZoomLevel == -1) {
 
-            this._container.innerHTML = this.options.minZoomMessageNoLayer;
-        } else {
+                this._container.innerHTML = this.options.minZoomMessageNoLayer;
+            } else {
 
-            this._container.innerHTML = this.options.minZoomMessage
-                    .replace(/CURRENTZOOM/, this._map.getZoom())
-                    .replace(/MINZOOMLEVEL/, minZoomLevel);
-        }
+                this._container.innerHTML = this.options.minZoomMessage
+                        .replace(/CURRENTZOOM/, this._map.getZoom())
+                        .replace(/MINZOOMLEVEL/, minZoomLevel);
+            }
 
-        if (this._map.getZoom() >= minZoomLevel) {
+            if (this._map.getZoom() >= minZoomLevel) {
 
-            this._container.style.display = 'none';
-        } else {
+                this._container.style.display = 'none';
+            } else {
 
-            this._container.style.display = 'block';
-        }
-    },
+                this._container.style.display = 'block';
+            }
+        },
 
-    onAdd: function (map) {
+        onAdd: function (map) {
 
-        this._map = map;
+            this._map = map;
 
-        this._map.zoomIndicator = this;
+            this._map.zoomIndicator = this;
 
-        this._container = L.DomUtil.create('div', 'leaflet-control-minZoomIndicator');
+            this._container = L.DomUtil.create('div', 'leaflet-control-minZoomIndicator');
 
-        this._map.on('moveend', this._updateBox, this);
+            this._map.on('moveend', this._updateBox, this);
 
-        this._updateBox(null);
+            this._updateBox(null);
 
-        return this._container;
-    },
+            return this._container;
+        },
 
-    onRemove: function(map) {
+        onRemove: function(map) {
 
-        L.Control.prototype.onRemove.call(this, map);
+            L.Control.prototype.onRemove.call(this, map);
 
-        map.off({
+            map.off({
 
-            'moveend': this._updateBox
-        }, this);
+                'moveend': this._updateBox
+            }, this);
 
-        this._map = null;
-    },
-});
+            this._map = null;
+        },
+    });
+
+    return MinZoomIndicator;
+}, window));
