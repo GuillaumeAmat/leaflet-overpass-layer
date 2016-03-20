@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.0
+* Universal Module Definition.
+* ClipperLib loaded by NPM
+* Adds Leaflet dependancy to package.json.
+* Fixes a debug bug on rectangles creation.
+
 ## 1.6.3
 * Updates the package.json to publish the module to npmjs.com.
 
