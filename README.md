@@ -79,8 +79,8 @@ options: {
 
 ## Dependencies
 
-* [Leaflet](https://github.com/Leaflet/Leaflet) (tried with version 0.6.2, 0.7.3)
-* [JsClipper](https://github.com/mathisonian/JsClipper) (tried with version 1.0.1)
+* [Leaflet](https://github.com/Leaflet/Leaflet)
+* [JsClipper](https://github.com/mathisonian/JsClipper)
 
 ## Development
 
