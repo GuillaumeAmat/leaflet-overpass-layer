@@ -425,7 +425,10 @@
             bounds._northEast.lat += height / 2;
             bounds._northEast.lng += width / 2;
 
-            return bounds;
+            return L.latLngBounds(
+                L.latLng(bounds._southWest.lat, bounds._southWest.lng),
+                L.latLng(bounds._northEast.lat, bounds._northEast.lng)
+            );
         },
 
         _setRequestInProgress: function (isInProgress) {
