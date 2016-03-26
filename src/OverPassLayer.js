@@ -524,7 +524,7 @@
             this._requestInProgress = false;
             this._zoomControl._removeLayer(this);
 
-            map.off('moveend', this.onMoveEnd, this);
+            map.off('moveend', this._prepareRequest, this);
 
             this._map = null;
         },
