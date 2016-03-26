@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.7.1
+* Fixes the moveend event removal.
+
 ## 1.7.0
 * Universal Module Definition.
 * ClipperLib loaded by NPM
