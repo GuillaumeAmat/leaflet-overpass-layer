@@ -28,21 +28,23 @@ You can include and use the `OverpassLayer.css` and `OverpassLayer.js` files (or
 
 
 ```javascript
-var attr_osm = 'Map data &copy; <a href="http://openstreetmap.org/">OpenStreetMap</a> contributors',
+var attr_osm = 'Map data &copy; <a href="http://openstreetmap.org/">OpenStreetMap</a> contributors';
+var attr_overpass = 'POI via <a href="http://www.overpass-api.de/">Overpass API</a>';
 
-attr_overpass = 'POI via <a href="http://www.overpass-api.de/">Overpass API</a>',
+var osm = new L.TileLayer(
+    'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+        'opacity': 0.7,
+        'attribution': [attr_osm, attr_overpass].join(', ')
+    }
+);
 
-osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-
-    'opacity': 0.7,
-    'attribution': [attr_osm, attr_overpass].join(', ')
-}),
-
-map = new L.Map('map')
+var map = new L.Map('map')
 .addLayer(osm)
-.setView(new L.LatLng(52.265, 10.524), 14),
+.setView(new L.LatLng(52.265, 10.524), 14);
 
-opl = new L.OverPassLayer({
+
+var opl = new L.OverPassLayer({
 
     'query': '(node({{bbox}})[organic];node({{bbox}})[second_hand];);out qt;',
 });
@@ -89,16 +91,12 @@ options: {
 In order to contribute to the project you should first clone the repository. The javascript source files
 reside in the `src` folder and are concatenated and minified by gulp. If you want to make changes
 make them in the `src` folder and then build the `dist` file with gulp.
-For that you first need to install gulp if you do not have installed it yet
-```
-$ npm install --global gulp
-```
-Then install all the needed packages for this project:
+For that you first need to install all the needed packages for this project:
 ```
 $ npm install
 ```
 And then just run
 ```
-gulp
+$ npm run build
 ```
-after you made your changes. This will combine (and minify) the files and put them into the `dist` folder.
+After you made your changes. This will combine (and minify) the files and put them into the `dist` folder.
