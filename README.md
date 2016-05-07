@@ -1,4 +1,4 @@
-# Leaflet Layer OverPass
+# Leaflet OverPass Layer
 
 This plugin is a fork of https://github.com/kartenkarsten/leaflet-layer-overpass
 

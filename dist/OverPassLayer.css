@@ -1,8 +1,2 @@
-.leaflet-control-minZoomIndicator {
-    font-size: 2em;
-    background: #ffffff;
-    background-color: rgba(255,255,255,0.7);
-    border-radius: 10px;
-    padding: 1px 15px;
-    opacity: 0.5;   
-}
+.leaflet-control-minZoomIndicator{font-size:14px;line-height:22px;background:#fff;padding:4px 10px;color:#333;-o-box-shadow:0 0 8px 0 rgba(0,0,0,.4);-ms-box-shadow:0 0 8px 0 rgba(0,0,0,.4);box-shadow:0 0 8px 0 rgba(0,0,0,.4)}
+/*# sourceMappingURL=OverPassLayer.css.map*/

@@ -8,7 +8,7 @@
     "Guillaume Amat <guillaume@amat.io>"
   ],
   "description": "This is an simple way to bring OSM data as POI overlay on your leaflet Map",
-  "main": "dist/OverPassLayer.min.js",
+  "main": "dist/OverPassLayer.bundle.js",
   "keywords": [
     "leaflet",
     "overpass",
@@ -21,7 +21,6 @@
   "ignore": [
     "**/.*",
     "node_modules",
-    "bower_components"
   ],
   "dependencies": {
     "leaflet": "~0.7.7"
