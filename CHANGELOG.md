@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.0
+* The dist folder is now built with Webpack rather than Gulp.
+* Fixes the default onSuccess callback.
+
 ## 1.7.1
 * Fixes the moveend event removal.
 

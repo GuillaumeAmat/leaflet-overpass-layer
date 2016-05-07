@@ -24,7 +24,7 @@ $ bower install leaflet-layer-overpass
 
 ## Usage
 
-You can include and use the `OverpassLayer.css` and `OverpassLayer.js` files (or `OverPassLayer.min.js` if you want the minified version) from the `dist` folder in your html.
+You can include and use the `OverpassLayer.css` and `OverpassLayer.bundle.js` files from the `dist` folder in your html.
 
 
 ```javascript
@@ -68,8 +68,8 @@ options: {
   'minZoomIndicatorOptions': {
 
     'position': 'topright',
-    'minZoomMessageNoLayer': 'no layer assigned',
-    'minZoomMessage': 'current Zoom-Level: CURRENTZOOM all data at Level: MINZOOMLEVEL'
+    'minZoomMessageNoLayer': 'No layer assigned',
+    'minZoomMessage': 'Current zoom level: CURRENTZOOM - All data at level: MINZOOMLEVEL'
 },
   'beforeRequest': function() {},
   'afterRequest': function() {},
@@ -82,21 +82,15 @@ options: {
 ## Dependencies
 
 * [Leaflet](https://github.com/Leaflet/Leaflet)
-* [JsClipper](https://github.com/mathisonian/JsClipper)
 
 ## Development
 
 *Warning: This fork use Git Flow to manage branches.*
 
 In order to contribute to the project you should first clone the repository. The javascript source files
-reside in the `src` folder and are concatenated and minified by gulp. If you want to make changes
-make them in the `src` folder and then build the `dist` file with gulp.
+reside in the `src` folder and are concatenated and minified by Webpack in the `dist` folder. If you want to make changes
+make them in the `src` folder and then run `npm run build` (or `npm run watch` for continuous build).
 For that you first need to install all the needed packages for this project:
 ```
 $ npm install
 ```
-And then just run
-```
-$ npm run build
-```
-After you made your changes. This will combine (and minify) the files and put them into the `dist` folder.
