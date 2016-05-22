@@ -200,7 +200,7 @@ var OverPassLayer = L.FeatureGroup.extend({
         return this._loadedBounds;
     },
 
-    _setLoadedBounds: function (bounds) {
+    _addLoadedBounds: function (bounds) {
 
         this._loadedBounds.push(bounds);
     },
@@ -329,11 +329,7 @@ var OverPassLayer = L.FeatureGroup.extend({
         }
 
         var bounds = this._buildLargerBounds( this._map.getBounds() ),
-        url = this._buildOverpassUrlFromEndPointAndQuery(
-            this.options.endPoint,
-            this._buildOverpassQueryFromQueryAndBounds(this.options.query, bounds)
-        ),
-        nextRequest = this._sendRequest.bind(this, url, bounds);
+        nextRequest = this._sendRequest.bind(this, bounds);
 
         if ( this._isRequestInProgress() ) {
 
@@ -346,17 +342,21 @@ var OverPassLayer = L.FeatureGroup.extend({
         }
     },
 
-    _sendRequest: function(url, bounds) {
+    _sendRequest: function(bounds) {
 
         var loadedBounds = this._getLoadedBounds();
 
         if ( this._isFullyLoadedBounds(bounds, loadedBounds) ) {
-
             this._setRequestInProgress(false);
             return;
         }
-
+        
         var self = this,
+        requestBounds = this._buildLargerBounds(bounds),
+        url = this._buildOverpassUrlFromEndPointAndQuery(
+            this.options.endPoint,
+            this._buildOverpassQueryFromQueryAndBounds(this.options.query, requestBounds)
+        ),
         request = new XMLHttpRequest(),
         beforeRequestResult = this.options.beforeRequest.call(this);
 
@@ -372,7 +372,7 @@ var OverPassLayer = L.FeatureGroup.extend({
         if (this.options.debug) {
 
             this._addRequestBox(
-                this._buildRequestBox(bounds)
+                this._buildRequestBox(requestBounds)
             );
         }
 
@@ -381,12 +381,12 @@ var OverPassLayer = L.FeatureGroup.extend({
 
         request.ontimeout = function () {
 
-            self._onRequestTimeout(this, url, bounds);
+            self._onRequestTimeout(this, url, requestBounds);
         };
 
         request.onload = function () {
 
-            self._onRequestLoad(this, bounds);
+            self._onRequestLoad(this, requestBounds);
         };
 
         request.send();
@@ -427,7 +427,7 @@ var OverPassLayer = L.FeatureGroup.extend({
 
     _onRequestLoadCallback: function (bounds) {
 
-        this._setLoadedBounds(bounds);
+        this._addLoadedBounds(bounds);
 
         if (this.options.debug) {
 
