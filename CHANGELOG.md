@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.2
+* Use the bigger value to extend the search area.
+
 ## 2.0.1
 * The bounding box is not extended on every requests anymore.
 
