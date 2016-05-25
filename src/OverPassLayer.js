@@ -273,12 +273,13 @@ var OverPassLayer = L.FeatureGroup.extend({
     _buildLargerBounds: function (bounds) {
 
         var width = Math.abs( bounds._northEast.lng - bounds._southWest.lng ),
-        height = Math.abs( bounds._northEast.lat - bounds._southWest.lat );
+        height = Math.abs( bounds._northEast.lat - bounds._southWest.lat ),
+        biggestDimension = (width > height) ? width : height;
 
-        bounds._southWest.lat -= height / 2;
-        bounds._southWest.lng -= width / 2;
-        bounds._northEast.lat += height / 2;
-        bounds._northEast.lng += width / 2;
+        bounds._southWest.lat -= biggestDimension / 2;
+        bounds._southWest.lng -= biggestDimension / 2;
+        bounds._northEast.lat += biggestDimension / 2;
+        bounds._northEast.lng += biggestDimension / 2;
 
         return L.latLngBounds(
             L.latLng(bounds._southWest.lat, bounds._southWest.lng),
@@ -350,7 +351,7 @@ var OverPassLayer = L.FeatureGroup.extend({
             this._setRequestInProgress(false);
             return;
         }
-        
+
         var self = this,
         requestBounds = this._buildLargerBounds(bounds),
         url = this._buildOverpassUrlFromEndPointAndQuery(
