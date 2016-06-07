@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.3
+* Handles one line comments in Overpass requests.
+
 ## 2.0.2
 * Use the bigger value to extend the search area.
 
