@@ -262,7 +262,10 @@ var OverPassLayer = L.FeatureGroup.extend({
         ne = bounds._northEast,
         coordinates = [sw.lat, sw.lng, ne.lat, ne.lng].join(',');
 
-        return query.replace(/(\{\{bbox\}\})/g, coordinates);
+        query = query.replace(/(\/\/.*)/g, '');
+        query = query.replace(/(\{\{bbox\}\})/g, coordinates);
+
+        return query;
     },
 
     _buildOverpassUrlFromEndPointAndQuery: function (endPoint, query){
