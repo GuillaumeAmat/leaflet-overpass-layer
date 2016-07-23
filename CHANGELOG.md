@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.1.0
+* Adds a method to update the OverPass query. It automatically resets data and re-launches a request.
+
 ## 2.0.3
 * Handles one line comments in Overpass requests.
 
