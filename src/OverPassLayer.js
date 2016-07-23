@@ -508,14 +508,28 @@ var OverPassLayer = L.FeatureGroup.extend({
 
         L.LayerGroup.prototype.onRemove.call(this, map);
 
-        this._ids = {};
-        this._loadedBounds = [];
-        this._requestInProgress = false;
-        this._zoomControl._removeLayer(this);
+        this._resetData();
 
         map.off('moveend', this._prepareRequest, this);
 
         this._map = null;
+    },
+
+    setQuery: function (query) {
+        this.options.query = query;
+        this._resetData();
+        this._prepareRequest();
+    },
+
+    _resetData: function (map) {
+        this._ids = {};
+        this._loadedBounds = [];
+        this._requestInProgress = false;
+
+        if (this.options.debug) {
+            this._requestBoxes.clearLayers();
+            this._responseBoxes.clearLayers();
+        }
     },
 
     getData: function () {
