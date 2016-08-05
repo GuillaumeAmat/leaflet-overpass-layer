@@ -1,51 +1,73 @@
 # Changelog
 
-## 2.0.3
+## 2.1.1
+
 * Don't prepare request if the layer is not added to the map.
 
+## 2.1.0
+
+* Adds a method to update the OverPass query. It automatically resets data and re-launches a request.
+
+## 2.0.3
+
+* Handles one line comments in Overpass requests.
+
 ## 2.0.2
+
 * Use the bigger value to extend the search area.
 
 ## 2.0.1
+
 * The bounding box is not extended on every requests anymore.
 
 ## 2.0.0
+
 * The dist folder is now built with Webpack rather than Gulp.
 * Fixes the default onSuccess callback.
 
 ## 1.7.1
+
 * Fixes the moveend event removal.
 
 ## 1.7.0
+
 * Universal Module Definition.
 * ClipperLib loaded by NPM
 * Adds Leaflet dependancy to package.json.
 * Fixes a debug bug on rectangles creation.
 
 ## 1.6.3
+
 * Updates the package.json to publish the module to npmjs.com.
 
 ## 1.6.2
+
 * Builds a bounding box without taking care of a zoom level.
 
 ## 1.6.1
+
 * Don't launch the next request if its area is already requested.
 
 ## 1.6.0
+
 * The request bounding box is larger than the requested one.
 * A new collision method is used to prevent requests on already loaded bounding boxes.
 * Only one request at a time ;)
 
 ## 1.5.3
+
 * Reduce the size of the requests' areas.
 
 ## 1.5.2
+
 * Bump Leaflet version to 0.7.7.
 
 ## 1.5.1
+
 * Rename the CHANGELOG file.
 
 ## 1.5.0
+
 * Adds some significant refactor of code.
 * Removes the requestPerTile mode.
 * Removes the killMyQueries functionality.
@@ -54,13 +76,17 @@
 * Invalidates the requests cache on error.
 
 ## 1.4.5
+
 * Fix the requestPerTile mode since the support of killMyQueries broke it.
 
 ## 1.4.4
+
 * Remove a duplicate / in the kill queries call.
 
 ## 1.4.3
+
 * Kill out of date queries before sending new ones.
 
 ## 1.4.2
+
 * Fix the minZoom option name (not camelcased) in MinZoomIndicator.js.
