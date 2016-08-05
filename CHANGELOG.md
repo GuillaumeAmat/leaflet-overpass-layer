@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.3
+* Don't prepare request if the layer is not added to the map.
+
 ## 2.0.2
 * Use the bigger value to extend the search area.
 
