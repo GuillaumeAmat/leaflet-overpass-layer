@@ -262,7 +262,10 @@ var OverPassLayer = L.FeatureGroup.extend({
         ne = bounds._northEast,
         coordinates = [sw.lat, sw.lng, ne.lat, ne.lng].join(',');
 
-        return query.replace(/(\{\{bbox\}\})/g, coordinates);
+        query = query.replace(/(\/\/.*)/g, '');
+        query = query.replace(/(\{\{bbox\}\})/g, coordinates);
+
+        return query;
     },
 
     _buildOverpassUrlFromEndPointAndQuery: function (endPoint, query){
@@ -505,14 +508,31 @@ var OverPassLayer = L.FeatureGroup.extend({
 
         L.LayerGroup.prototype.onRemove.call(this, map);
 
-        this._ids = {};
-        this._loadedBounds = [];
-        this._requestInProgress = false;
-        this._zoomControl._removeLayer(this);
+        this._resetData();
 
         map.off('moveend', this._prepareRequest, this);
 
         this._map = null;
+    },
+
+    setQuery: function (query) {
+        this.options.query = query;
+        this._resetData();
+
+        if (this._map) {
+            this._prepareRequest();
+        }
+    },
+
+    _resetData: function (map) {
+        this._ids = {};
+        this._loadedBounds = [];
+        this._requestInProgress = false;
+
+        if (this.options.debug) {
+            this._requestBoxes.clearLayers();
+            this._responseBoxes.clearLayers();
+        }
     },
 
     getData: function () {
