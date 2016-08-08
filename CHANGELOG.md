@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.2
+
+* Reimplements the MinZoomIndicator removeLayer.
+
 ## 2.1.1
 
 * Don't prepare request if the layer is not added to the map.
