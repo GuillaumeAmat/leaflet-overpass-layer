@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.3
+
+* Forgot to build...
+
 ## 2.1.2
 
 * Reimplements the MinZoomIndicator removeLayer.
