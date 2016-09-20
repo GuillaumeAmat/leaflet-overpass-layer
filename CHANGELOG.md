@@ -4,6 +4,7 @@
 
 * Add the loadedBounds option.
 * Don't reset the loaded bounds on layer remove.
+* Allow to customize the default marker icon.
 
 ## 2.1.3
 
