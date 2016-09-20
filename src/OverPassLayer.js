@@ -13,7 +13,7 @@ var OverPassLayer = L.FeatureGroup.extend({
         'endPoint': 'http://overpass-api.de/api/',
         'query': '(node({{bbox}})[organic];node({{bbox}})[second_hand];);out qt;',
         'loadedBounds': [],
-        'marker': null,
+        'markerIcon': null,
         'timeout': 30 * 1000, // Milliseconds
         'retryOnTimeout': false,
         'noInitialRequest': false,
@@ -49,8 +49,8 @@ var OverPassLayer = L.FeatureGroup.extend({
                     pos = new L.LatLng(e.center.lat, e.center.lon);
                 }
 
-                if (this.options.marker) {
-                    marker = this.options.marker;
+                if (this.options.markerIcon) {
+                    marker = L.marker(pos, { icon: this.options.markerIcon });
                 }
                 else {
                     marker = L.circle(pos, 20, {
@@ -88,7 +88,7 @@ var OverPassLayer = L.FeatureGroup.extend({
         L.Util.setOptions(this, options);
 
         this._ids = {};
-        this._loadedBounds = options.loadedBounds;
+        this._loadedBounds = options.loadedBounds || [];
         this._requestInProgress = false;
     },
 
@@ -204,7 +204,7 @@ var OverPassLayer = L.FeatureGroup.extend({
         }
     },
 
-    _getLoadedBounds: function (bounds) {
+    _getLoadedBounds: function () {
 
         return this._loadedBounds;
     },
