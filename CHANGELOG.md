@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.0
+
+* Add the loadedBounds option.
+* Don't reset the loaded bounds on layer remove.
+* Allow to customize the default marker icon.
+
 ## 2.1.3
 
 * Forgot to build...

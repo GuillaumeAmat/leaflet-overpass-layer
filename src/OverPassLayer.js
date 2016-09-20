@@ -12,8 +12,11 @@ var OverPassLayer = L.FeatureGroup.extend({
         'minZoom': 15,
         'endPoint': 'http://overpass-api.de/api/',
         'query': '(node({{bbox}})[organic];node({{bbox}})[second_hand];);out qt;',
+        'loadedBounds': [],
+        'markerIcon': null,
         'timeout': 30 * 1000, // Milliseconds
         'retryOnTimeout': false,
+        'noInitialRequest': false,
         'noInitialRequest': false,
 
         beforeRequest: function() {
@@ -28,7 +31,7 @@ var OverPassLayer = L.FeatureGroup.extend({
 
             for(var i = 0; i < data.elements.length; i++) {
 
-                var pos, popupContent, popup, circle,
+                var pos, popupContent, popup, marker,
                 e = data.elements[i];
 
                 if ( e.id in this._ids ) {
@@ -46,16 +49,22 @@ var OverPassLayer = L.FeatureGroup.extend({
                     pos = new L.LatLng(e.center.lat, e.center.lon);
                 }
 
+                if (this.options.markerIcon) {
+                    marker = L.marker(pos, { icon: this.options.markerIcon });
+                }
+                else {
+                    marker = L.circle(pos, 20, {
+                        'stroke': false,
+                        'fillColor': '#E54041',
+                        'fillOpacity': 0.9,
+                    });
+                }
+
                 popupContent = this._getPoiPopupHTML(e.tags, e.id);
                 popup = L.popup().setContent( popupContent );
-                circle = L.circle(pos, 20, {
-                    'stroke': false,
-                    'fillColor': '#E54041',
-                    'fillOpacity': 0.9,
-                })
-                .bindPopup(popup);
+                marker.bindPopup(popup);
 
-                this._map.addLayer(circle);
+                this._map.addLayer(marker);
             }
         },
 
@@ -79,7 +88,7 @@ var OverPassLayer = L.FeatureGroup.extend({
         L.Util.setOptions(this, options);
 
         this._ids = {};
-        this._loadedBounds = [];
+        this._loadedBounds = options.loadedBounds || [];
         this._requestInProgress = false;
     },
 
@@ -195,7 +204,7 @@ var OverPassLayer = L.FeatureGroup.extend({
         }
     },
 
-    _getLoadedBounds: function (bounds) {
+    _getLoadedBounds: function () {
 
         return this._loadedBounds;
     },
@@ -508,10 +517,6 @@ var OverPassLayer = L.FeatureGroup.extend({
 
         L.LayerGroup.prototype.onRemove.call(this, map);
 
-        this._resetData();
-
-        this._zoomControl._removeLayer(this);
-
         map.off('moveend', this._prepareRequest, this);
 
         this._map = null;
@@ -520,10 +525,7 @@ var OverPassLayer = L.FeatureGroup.extend({
     setQuery: function (query) {
         this.options.query = query;
         this._resetData();
-
-        if (this._map) {
-            this._prepareRequest();
-        }
+        this._prepareRequest();
     },
 
     _resetData: function (map) {
