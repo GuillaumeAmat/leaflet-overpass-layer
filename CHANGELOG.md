@@ -3,6 +3,7 @@
 ## 2.2.0
 
 * Add the loadedBounds option.
+* Don't reset the loaded bounds on layer remove.
 
 ## 2.1.3
 

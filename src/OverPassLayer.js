@@ -510,8 +510,6 @@ var OverPassLayer = L.FeatureGroup.extend({
 
         L.LayerGroup.prototype.onRemove.call(this, map);
 
-        this._resetData();
-
         map.off('moveend', this._prepareRequest, this);
 
         this._map = null;
