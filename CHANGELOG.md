@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.0
+
+* Add the loadedBounds option.
+
 ## 2.1.3
 
 * Forgot to build...
