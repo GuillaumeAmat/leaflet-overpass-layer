@@ -20,7 +20,7 @@
   "license": "MIT",
   "ignore": [
     "**/.*",
-    "node_modules",
+    "node_modules"
   ],
   "dependencies": {
     "leaflet": "~0.7.7"

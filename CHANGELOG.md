@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.1
+
+* Fix the bower.json file.
+
 ## 2.2.0
 
 * Add the loadedBounds option.
