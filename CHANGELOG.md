@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.0
+
+* Update Leaflet to version 1.0.1.
+
 ## 2.2.1
 
 * Fix the bower.json file.
