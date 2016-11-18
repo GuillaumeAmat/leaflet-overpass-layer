@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.1
+
+* Put the real MIT license content in the LICENSE file.
+
 ## 2.3.0
 
 * Update Leaflet to version 1.0.1.
