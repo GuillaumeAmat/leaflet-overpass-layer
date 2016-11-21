@@ -11,7 +11,7 @@ A [Leaflet](http://leafletjs.com/) plugin to create a custom POI overlay - thank
 ### NPM
 
 ```bash
-$ npm install leaflet-layer-overpass
+$ npm install leaflet-overpass-layer
 ```
 
 ### Bower
@@ -19,7 +19,7 @@ $ npm install leaflet-layer-overpass
 If you use bower to install leaflet-layer-overpass, you need to load [JsClipper](https://github.com/mathisonian/JsClipper) first.
 
 ```bash
-$ bower install leaflet-layer-overpass
+$ bower install leaflet-overpass-layer
 ```
 
 ## Usage
