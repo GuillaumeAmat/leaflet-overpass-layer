@@ -10,7 +10,7 @@ var OverPassLayer = L.FeatureGroup.extend({
 
         'debug': false,
         'minZoom': 15,
-        'endPoint': 'http://overpass-api.de/api/',
+        'endPoint': 'https://overpass-api.de/api/',
         'query': '(node({{bbox}})[organic];node({{bbox}})[second_hand];);out qt;',
         'loadedBounds': [],
         'markerIcon': null,
