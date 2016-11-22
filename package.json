@@ -1,7 +1,7 @@
 {
   "name": "leaflet-overpass-layer",
   "description": "This is an simple way to bring OSM data as POI overlay on your leaflet Map",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "main": "src/OverPassLayer.js",
   "devDependencies": {
     "babel-core": "^6.7.2",
