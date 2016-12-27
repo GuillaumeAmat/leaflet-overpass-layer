@@ -546,4 +546,7 @@ var OverPassLayer = L.FeatureGroup.extend({
 });
 
 L.OverPassLayer = OverPassLayer;
+L.overpassLayer = function (options) {
+  return new L.OverPassLayer(options);
+};
 module.exports = OverPassLayer;
