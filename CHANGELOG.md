@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.0
+
+* Add constructor L.overpassLayer.
+
 ## 2.3.1
 
 * Put the real MIT license content in the LICENSE file.
