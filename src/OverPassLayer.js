@@ -503,14 +503,10 @@ var OverPassLayer = L.FeatureGroup.extend({
         }
 
         if ( !this.options.noInitialRequest ) {
-
             this._prepareRequest();
         }
 
-        if (this.options.query.indexOf('({{bbox}})') !== -1) {
-
-            this._map.on('moveend', this._prepareRequest, this);
-        }
+        this._map.on('moveend', this._prepareRequest, this);
     },
 
     onRemove: function (map) {
