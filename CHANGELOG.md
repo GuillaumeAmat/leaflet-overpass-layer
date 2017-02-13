@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.1
+
+* Fix an issue leading to load the map without any request.
+
 ## 2.5.0
 
 * Add constructor L.overpassLayer.
