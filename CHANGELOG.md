@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.0
+
+* Properly remove featureGroups when the main layer is removed from the map.
+
 ## 2.5.1
 
 * Fix an issue leading to load the map without any request.
