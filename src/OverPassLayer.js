@@ -64,7 +64,7 @@ var OverPassLayer = L.FeatureGroup.extend({
                 popup = L.popup().setContent( popupContent );
                 marker.bindPopup(popup);
 
-                this._map.addLayer(marker);
+                this._markers.addLayer(marker);
             }
         },
 
@@ -502,6 +502,8 @@ var OverPassLayer = L.FeatureGroup.extend({
             this._responseBoxes = L.featureGroup().addTo(this._map);
         }
 
+        this._markers = L.featureGroup().addTo(this._map);
+
         if ( !this.options.noInitialRequest ) {
             this._prepareRequest();
         }
@@ -512,6 +514,10 @@ var OverPassLayer = L.FeatureGroup.extend({
     onRemove: function (map) {
 
         L.LayerGroup.prototype.onRemove.call(this, map);
+
+        map.removeLayer(this._markers);
+        map.removeLayer(this._requestBoxes);
+        map.removeLayer(this._responseBoxes);
 
         map.off('moveend', this._prepareRequest, this);
 
@@ -530,6 +536,7 @@ var OverPassLayer = L.FeatureGroup.extend({
         this._requestInProgress = false;
 
         if (this.options.debug) {
+            this._markers.clearLayers();
             this._requestBoxes.clearLayers();
             this._responseBoxes.clearLayers();
         }
