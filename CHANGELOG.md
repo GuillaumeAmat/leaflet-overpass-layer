@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.1
+
+* Fix the data cleanup when not in debug mode.
+
 ## 2.6.0
 
 * Properly remove featureGroups when the main layer is removed from the map.
