@@ -515,9 +515,7 @@ var OverPassLayer = L.FeatureGroup.extend({
 
         L.LayerGroup.prototype.onRemove.call(this, map);
 
-        map.removeLayer(this._markers);
-        map.removeLayer(this._requestBoxes);
-        map.removeLayer(this._responseBoxes);
+        this._resetData();
 
         map.off('moveend', this._prepareRequest, this);
 
@@ -535,8 +533,9 @@ var OverPassLayer = L.FeatureGroup.extend({
         this._loadedBounds = [];
         this._requestInProgress = false;
 
+        this._markers.clearLayers();
+
         if (this.options.debug) {
-            this._markers.clearLayers();
             this._requestBoxes.clearLayers();
             this._responseBoxes.clearLayers();
         }
