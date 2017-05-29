@@ -58,26 +58,26 @@ You can specify an options object as an argument of L.OverPassLayer.
 ```javascript
 options: {
 
-  'debug': false,
-  'minZoom': 15,
-  'endPoint': 'https://overpass-api.de/api/',
-  'query': '(node({{bbox}})[organic];node({{bbox}})[second_hand];);out qt;',
-  'loadedBounds': [],
-  'markerIcon': L.Icon(),
-  'timeout': 30 * 1000, // Milliseconds
-  'retryOnTimeout': false,
-  'noInitialRequest': false,
-  'minZoomIndicatorOptions': {
-
-    'position': 'topright',
-    'minZoomMessageNoLayer': 'No layer assigned',
-    'minZoomMessage': 'Current zoom level: CURRENTZOOM - All data at level: MINZOOMLEVEL'
+  debug: false,
+  minZoom: 15,
+  endPoint: 'https://overpass-api.de/api/',
+  query: '(node({{bbox}})[organic];node({{bbox}})[second_hand];);out qt;',
+  loadedBounds: [],
+  markerIcon: L.Icon(),
+  timeout: 30 * 1000, // Milliseconds
+  retryOnTimeout: false,
+  noInitialRequest: false,
+  minZoomIndicatorEnabled: true,
+  minZoomIndicatorOptions: {
+    position: 'topright',
+    minZoomMessageNoLayer: 'No layer assigned',
+    minZoomMessage: 'Current zoom level: CURRENTZOOM - All data at level: MINZOOMLEVEL'
 },
-  'beforeRequest': function() {},
-  'afterRequest': function() {},
-  'onSuccess': function(data) {},
-  'onError': function(xhr) {},
-  'onTimeout': function(xhr) {},
+  beforeRequest: function() {},
+  afterRequest: function() {},
+  onSuccess: function(data) {},
+  onError: function(xhr) {},
+  onTimeout: function(xhr) {},
 };
 ```
 
