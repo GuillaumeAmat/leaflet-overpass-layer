@@ -76,6 +76,7 @@ var OverPassLayer = L.FeatureGroup.extend({
 
         },
 
+        minZoomIndicatorEnabled: true,
         minZoomIndicatorOptions: {
 
             'minZoomMessageNoLayer': 'No layer assigned',
@@ -483,17 +484,19 @@ var OverPassLayer = L.FeatureGroup.extend({
 
         this._map = map;
 
-        if (this._map.zoomIndicator) {
+        if (this.options.minZoomIndicatorEnabled === true) {
+            if (this._map.zoomIndicator) {
 
-            this._zoomControl = this._map.zoomIndicator;
-            this._zoomControl._addLayer(this);
-        } else {
+                this._zoomControl = this._map.zoomIndicator;
+                this._zoomControl._addLayer(this);
+            } else {
 
-            this._zoomControl = new L.Control.MinZoomIndicator(this.options.minZoomIndicatorOptions);
+                this._zoomControl = new L.Control.MinZoomIndicator(this.options.minZoomIndicatorOptions);
 
-            this._map.addControl(this._zoomControl);
+                this._map.addControl(this._zoomControl);
 
-            this._zoomControl._addLayer(this);
+                this._zoomControl._addLayer(this);
+            }
         }
 
         if (this.options.debug) {

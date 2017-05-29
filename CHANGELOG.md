@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.7.0
+
+* Add the minZoomIndicatorEnabled options (default to true).
+
 ## 2.6.1
 
 * Fix the data cleanup when not in debug mode.
