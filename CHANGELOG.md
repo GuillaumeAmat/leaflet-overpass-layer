@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.0
+
+* Upgrade the Leaflet dependency to the ^1.2.0 version.
+
 ## 2.7.0
 
 * Add the minZoomIndicatorEnabled options (default to true).
