@@ -1,10 +1,10 @@
 
-var webpack = require('webpack');
-var path = require('path');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var extractCSS = new ExtractTextPlugin('OverPassLayer.css');
+const webpack = require('webpack');
+const path = require('path');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const extractCSS = new ExtractTextPlugin('OverPassLayer.css');
 
-var plugins = [
+const plugins = [
     extractCSS
 ];
 
@@ -24,7 +24,6 @@ plugins.push(
 
 module.exports = {
     devtool: 'source-map',
-    debug: true,
     plugins: plugins,
     context: path.join(__dirname, 'src'),
     entry: {
@@ -38,15 +37,15 @@ module.exports = {
         'leaflet': 'L',
     },
     module: {
-        loaders: [
+        rules: [
             {
                 test: /\.js$/,
-                loader: 'babel',
+                loader: 'babel-loader',
                 exclude: /node_modules/
             },
             {
                 test: /\.css$/,
-                loader: extractCSS.extract(['css'])
+                loader: extractCSS.extract(['css-loader'])
             },
         ]
     },
