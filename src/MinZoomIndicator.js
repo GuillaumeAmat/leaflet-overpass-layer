@@ -1,6 +1,6 @@
-var L = require('leaflet');
+import L from 'leaflet';
 
-var MinZoomIndicator = L.Control.extend({
+const MinZoomIndicator = L.Control.extend({
   options: {},
 
   _layers: {},
@@ -12,7 +12,7 @@ var MinZoomIndicator = L.Control.extend({
   },
 
   _addLayer: function(layer) {
-    var minZoom = 15;
+    let minZoom = 15;
 
     if (layer.options.minZoom) {
       minZoom = layer.options.minZoom;
@@ -30,10 +30,9 @@ var MinZoomIndicator = L.Control.extend({
   },
 
   _getMinZoomLevel: function() {
-    var key,
-      minZoomLevel = -1;
+    let minZoomLevel = -1;
 
-    for (key in this._layers) {
+    for (const key in this._layers) {
       if (this._layers[key] !== null && this._layers[key] > minZoomLevel) {
         minZoomLevel = this._layers[key];
       }
@@ -43,7 +42,7 @@ var MinZoomIndicator = L.Control.extend({
   },
 
   _updateBox: function(event) {
-    var minZoomLevel = this._getMinZoomLevel();
+    const minZoomLevel = this._getMinZoomLevel();
 
     if (event !== null) {
       L.DomEvent.preventDefault(event);
