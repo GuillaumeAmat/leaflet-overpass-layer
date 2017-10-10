@@ -20,12 +20,10 @@ const OverPassLayer = L.FeatureGroup.extend({
     afterRequest: function() {},
 
     onSuccess: function(data) {
-      for (var i = 0; i < data.elements.length; i++) {
-        var pos,
-          popupContent,
-          popup,
-          marker,
-          e = data.elements[i];
+      for (let i = 0; i < data.elements.length; i++) {
+        let pos;
+        let marker;
+        const e = data.elements[i];
 
         if (e.id in this._ids) {
           continue;
@@ -49,8 +47,8 @@ const OverPassLayer = L.FeatureGroup.extend({
           });
         }
 
-        popupContent = this._getPoiPopupHTML(e.tags, e.id);
-        popup = L.popup().setContent(popupContent);
+        const popupContent = this._getPoiPopupHTML(e.tags, e.id);
+        const popup = L.popup().setContent(popupContent);
         marker.bindPopup(popup);
 
         this._markers.addLayer(marker);
@@ -78,10 +76,10 @@ const OverPassLayer = L.FeatureGroup.extend({
   },
 
   _getPoiPopupHTML: function(tags, id) {
-    var row,
-      link = document.createElement('a'),
-      table = document.createElement('table'),
-      div = document.createElement('div');
+    let row;
+    const link = document.createElement('a');
+    const table = document.createElement('table');
+    const div = document.createElement('div');
 
     link.href = 'http://www.openstreetmap.org/edit?editor=id&node=' + id;
     link.appendChild(document.createTextNode('Edit this entry in iD'));
@@ -89,7 +87,7 @@ const OverPassLayer = L.FeatureGroup.extend({
     table.style.borderSpacing = '10px';
     table.style.borderCollapse = 'separate';
 
-    for (var key in tags) {
+    for (const key in tags) {
       row = table.insertRow(0);
       row.insertCell(0).appendChild(document.createTextNode(key));
       row.insertCell(1).appendChild(document.createTextNode(tags[key]));
@@ -132,16 +130,14 @@ const OverPassLayer = L.FeatureGroup.extend({
   },
 
   _addResponseBoxes: function(requestBoxes) {
-    var self = this;
-
     this._removeRequestBoxes();
 
-    requestBoxes.forEach(function(box) {
+    requestBoxes.forEach(box => {
       box.setStyle({
         color: 'black',
         weight: 2
       });
-      self._addResponseBox(box);
+      this._addResponseBox(box);
     });
   },
 
@@ -150,11 +146,10 @@ const OverPassLayer = L.FeatureGroup.extend({
       return false;
     }
 
-    var solutionExPolygons,
-      subjectClips = this._buildClipsFromBounds([bounds]),
-      knownClips = this._buildClipsFromBounds(loadedBounds),
-      clipper = new ClipperLib.Clipper(),
-      solutionPolyTree = new ClipperLib.PolyTree();
+    const subjectClips = this._buildClipsFromBounds([bounds]);
+    const knownClips = this._buildClipsFromBounds(loadedBounds);
+    const clipper = new ClipperLib.Clipper();
+    const solutionPolyTree = new ClipperLib.PolyTree();
 
     clipper.AddPaths(subjectClips, ClipperLib.PolyType.ptSubject, true);
     clipper.AddPaths(knownClips, ClipperLib.PolyType.ptClip, true);
@@ -166,7 +161,9 @@ const OverPassLayer = L.FeatureGroup.extend({
       ClipperLib.PolyFillType.pftNonZero
     );
 
-    solutionExPolygons = ClipperLib.JS.PolyTreeToExPolygons(solutionPolyTree);
+    const solutionExPolygons = ClipperLib.JS.PolyTreeToExPolygons(
+      solutionPolyTree
+    );
 
     if (solutionExPolygons.length === 0) {
       return true;
@@ -184,7 +181,7 @@ const OverPassLayer = L.FeatureGroup.extend({
   },
 
   _buildClipsFromBounds: function(bounds) {
-    var clips = [];
+    const clips = [];
 
     bounds.forEach(function(bound) {
       clips.push([
@@ -211,7 +208,7 @@ const OverPassLayer = L.FeatureGroup.extend({
   },
 
   _buildBoundsFromClips: function(clips) {
-    var bounds = [];
+    const bounds = [];
 
     clips.forEach(function(clip) {
       bounds.push(
@@ -226,9 +223,9 @@ const OverPassLayer = L.FeatureGroup.extend({
   },
 
   _buildOverpassQueryFromQueryAndBounds: function(query, bounds) {
-    var sw = bounds._southWest,
-      ne = bounds._northEast,
-      coordinates = [sw.lat, sw.lng, ne.lat, ne.lng].join(',');
+    const sw = bounds._southWest;
+    const ne = bounds._northEast;
+    const coordinates = [sw.lat, sw.lng, ne.lat, ne.lng].join(',');
 
     query = query.replace(/(\/\/.*)/g, '');
     query = query.replace(/(\{\{bbox\}\})/g, coordinates);
@@ -241,9 +238,9 @@ const OverPassLayer = L.FeatureGroup.extend({
   },
 
   _buildLargerBounds: function(bounds) {
-    var width = Math.abs(bounds._northEast.lng - bounds._southWest.lng),
-      height = Math.abs(bounds._northEast.lat - bounds._southWest.lat),
-      biggestDimension = width > height ? width : height;
+    const width = Math.abs(bounds._northEast.lng - bounds._southWest.lng);
+    const height = Math.abs(bounds._northEast.lat - bounds._southWest.lat);
+    const biggestDimension = width > height ? width : height;
 
     bounds._southWest.lat -= biggestDimension / 2;
     bounds._southWest.lng -= biggestDimension / 2;
@@ -289,8 +286,8 @@ const OverPassLayer = L.FeatureGroup.extend({
       return false;
     }
 
-    var bounds = this._buildLargerBounds(this._map.getBounds()),
-      nextRequest = this._sendRequest.bind(this, bounds);
+    const bounds = this._buildLargerBounds(this._map.getBounds());
+    const nextRequest = this._sendRequest.bind(this, bounds);
 
     if (this._isRequestInProgress()) {
       this._setNextRequest(nextRequest);
@@ -301,24 +298,23 @@ const OverPassLayer = L.FeatureGroup.extend({
   },
 
   _sendRequest: function(bounds) {
-    var loadedBounds = this._getLoadedBounds();
+    const loadedBounds = this._getLoadedBounds();
 
     if (this._isFullyLoadedBounds(bounds, loadedBounds)) {
       this._setRequestInProgress(false);
       return;
     }
 
-    var self = this,
-      requestBounds = this._buildLargerBounds(bounds),
-      url = this._buildOverpassUrlFromEndPointAndQuery(
-        this.options.endPoint,
-        this._buildOverpassQueryFromQueryAndBounds(
-          this.options.query,
-          requestBounds
-        )
-      ),
-      request = new XMLHttpRequest(),
-      beforeRequestResult = this.options.beforeRequest.call(this);
+    const requestBounds = this._buildLargerBounds(bounds);
+    const url = this._buildOverpassUrlFromEndPointAndQuery(
+      this.options.endPoint,
+      this._buildOverpassQueryFromQueryAndBounds(
+        this.options.query,
+        requestBounds
+      )
+    );
+    const request = new XMLHttpRequest();
+    const beforeRequestResult = this.options.beforeRequest.call(this);
 
     if (beforeRequestResult === false) {
       this.options.afterRequest.call(this);
@@ -335,13 +331,8 @@ const OverPassLayer = L.FeatureGroup.extend({
     request.open('GET', url, true);
     request.timeout = this.options.timeout;
 
-    request.ontimeout = function() {
-      self._onRequestTimeout(this, url, requestBounds);
-    };
-
-    request.onload = function() {
-      self._onRequestLoad(this, requestBounds);
-    };
+    request.ontimeout = () => this._onRequestTimeout(this, url, requestBounds);
+    request.onload = () => this._onRequestLoad(this, requestBounds);
 
     request.send();
   },
@@ -389,7 +380,7 @@ const OverPassLayer = L.FeatureGroup.extend({
     this.options.afterRequest.call(this);
 
     if (this._hasNextRequest()) {
-      var nextRequest = this._getNextRequest();
+      const nextRequest = this._getNextRequest();
 
       this._removeNextRequest();
 
