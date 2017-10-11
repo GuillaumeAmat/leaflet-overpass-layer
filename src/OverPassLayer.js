@@ -320,8 +320,9 @@ const OverPassLayer = L.FeatureGroup.extend({
     request.open('GET', url, true);
     request.timeout = this.options.timeout;
 
-    request.ontimeout = () => this._onRequestTimeout(this, url, requestBounds);
-    request.onload = () => this._onRequestLoad(this, requestBounds);
+    request.ontimeout = () =>
+      this._onRequestTimeout(request, url, requestBounds);
+    request.onload = () => this._onRequestLoad(request, requestBounds);
 
     request.send();
   },

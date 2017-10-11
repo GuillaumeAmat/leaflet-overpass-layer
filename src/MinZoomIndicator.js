@@ -5,13 +5,13 @@ const MinZoomIndicator = L.Control.extend({
 
   _layers: {},
 
-  initialize: function(options) {
+  initialize(options) {
     L.Util.setOptions(this, options);
 
     this._layers = {};
   },
 
-  _addLayer: function(layer) {
+  _addLayer(layer) {
     let minZoom = 15;
 
     if (layer.options.minZoom) {
@@ -23,13 +23,13 @@ const MinZoomIndicator = L.Control.extend({
     this._updateBox(null);
   },
 
-  _removeLayer: function(layer) {
+  _removeLayer(layer) {
     this._layers[layer._leaflet_id] = null;
 
     this._updateBox(null);
   },
 
-  _getMinZoomLevel: function() {
+  _getMinZoomLevel() {
     let minZoomLevel = -1;
 
     for (const key in this._layers) {
@@ -41,7 +41,7 @@ const MinZoomIndicator = L.Control.extend({
     return minZoomLevel;
   },
 
-  _updateBox: function(event) {
+  _updateBox(event) {
     const minZoomLevel = this._getMinZoomLevel();
 
     if (event !== null) {
@@ -63,7 +63,7 @@ const MinZoomIndicator = L.Control.extend({
     }
   },
 
-  onAdd: function(map) {
+  onAdd(map) {
     this._map = map;
 
     this._map.zoomIndicator = this;
@@ -80,7 +80,7 @@ const MinZoomIndicator = L.Control.extend({
     return this._container;
   },
 
-  onRemove: function(map) {
+  onRemove(map) {
     L.Control.prototype.onRemove.call(this, map);
 
     map.off(
