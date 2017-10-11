@@ -4,6 +4,7 @@
   "version": "2.8.0",
   "main": "src/OverPassLayer.js",
   "devDependencies": {
+    "autoprefixer": "^7.1.5",
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.0.1",
     "babel-loader": "^7.1.2",
@@ -16,6 +17,7 @@
     "extract-text-webpack-plugin": "^3.0.1",
     "husky": "^0.14.3",
     "lint-staged": "^4.2.3",
+    "postcss-loader": "^2.0.7",
     "prettier": "^1.7.4",
     "webpack": "^3.6.0"
   },
@@ -39,6 +41,10 @@
       "git add"
     ]
   },
+  "browserslist": [
+    "> 1%",
+    "last 3 versions"
+  ],
   "keywords": [
     "leaflet",
     "overpass",

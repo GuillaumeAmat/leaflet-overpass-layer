@@ -18,7 +18,7 @@ plugins.push(
         compress: {
           warnings: false
         }
-    })
+    }),
 );
 
 
@@ -45,7 +45,7 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                loader: extractCSS.extract(['css-loader'])
+                loader: extractCSS.extract(['css-loader', 'postcss-loader'])
             },
         ]
     },
