@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.1
+
+* Expose the module the ES6 way.
+
 ## 2.8.0
 
 * Upgrade the Leaflet dependency to the ^1.2.0 version.
