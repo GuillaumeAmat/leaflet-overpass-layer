@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.2
+
+* Revert 2.8.1.
+
 ## 2.8.1
 
 * Expose the module the ES6 way.
