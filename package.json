@@ -2,7 +2,47 @@
   "name": "leaflet-overpass-layer",
   "description": "This is an simple way to bring OSM data as POI overlay on your leaflet Map",
   "version": "2.8.2",
+  "homepage": "https://github.com/GuillaumeAmat/leaflet-overpass-layer/",
+  "repository": "https://github.com/GuillaumeAmat/leaflet-overpass-layer/",
+  "bugs": "https://github.com/GuillaumeAmat/leaflet-overpass-layer/issues",
+  "author": [
+    "Karsten Hinz",
+    "Guillaume Amat"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "leaflet",
+    "overpass",
+    "layer",
+    "marker",
+    "osm",
+    "openstreetmap"
+  ],
   "main": "src/OverPassLayer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --progress",
+    "watch": "webpack -w --progress",
+    "precommit": "lint-staged"
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,json,css}": [
+      "prettier --single-quote --write",
+      "git add"
+    ],
+    "src/**/*.{js,jsx,json}": [
+      "eslint",
+      "git add"
+    ]
+  },
+  "dependencies": {
+    "js-clipper": "^1.0.1",
+    "leaflet": "^1.2.0"
+  },
   "devDependencies": {
     "autoprefixer": "^7.1.5",
     "babel-core": "^6.26.0",
@@ -20,49 +60,5 @@
     "postcss-loader": "^2.0.7",
     "prettier": "^1.7.4",
     "webpack": "^3.6.0"
-  },
-  "dependencies": {
-    "js-clipper": "^1.0.1",
-    "leaflet": "^1.2.0"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --progress",
-    "watch": "webpack -w --progress",
-    "precommit": "lint-staged"
-  },
-  "lint-staged": {
-    "src/**/*.{js,jsx,json,css}": [
-      "prettier --single-quote --write",
-      "git add"
-    ],
-    "src/**/*.{js,jsx,json}": [
-      "eslint",
-      "git add"
-    ]
-  },
-  "browserslist": [
-    "> 1%",
-    "last 3 versions"
-  ],
-  "keywords": [
-    "leaflet",
-    "overpass",
-    "layer",
-    "marker",
-    "osm",
-    "openstreetmap"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/GuillaumeAmat/leaflet-overpass-layer/"
-  },
-  "bugs": {
-    "url": "https://github.com/GuillaumeAmat/leaflet-overpass-layer/issues"
-  },
-  "author": [
-    "Karsten Hinz",
-    "Guillaume Amat"
-  ],
-  "license": "MIT"
+  }
 }
