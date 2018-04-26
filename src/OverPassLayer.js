@@ -212,8 +212,8 @@ const OverPassLayer = L.FeatureGroup.extend({
   },
 
   _buildOverpassQueryFromQueryAndBounds(query, bounds) {
-    const sw = bounds._southWest;
-    const ne = bounds._northEast;
+    const sw = bounds._southWest.wrap();
+    const ne = bounds._northEast.wrap();
     const coordinates = [sw.lat, sw.lng, ne.lat, ne.lng].join(',');
 
     query = query.replace(/(\/\/.*)/g, '');
