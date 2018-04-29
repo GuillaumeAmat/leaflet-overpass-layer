@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.3
+
+* Wrap the coordinates to always fit in -180, 180 degrees.
+
 ## 2.8.2
 
 * Revert 2.8.1.

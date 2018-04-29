@@ -1,11 +1,13 @@
 {
   "parser": "babel-eslint",
   "plugins": [
-    "import"
+    "import",
+	"json"
   ],
   "extends": [
     "eslint:recommended",
-    "prettier"
+    "prettier",
+    "prettier/standard"
   ],
   "env": {
     "es6": true,
