@@ -32,9 +32,9 @@ const OverPassLayer = L.FeatureGroup.extend({
         this._ids[e.id] = true;
 
         if (e.type === 'node') {
-          pos = new L.LatLng(e.lat, e.lon);
+          pos = L.latLng(e.lat, e.lon);
         } else {
-          pos = new L.LatLng(e.center.lat, e.center.lon);
+          pos = L.latLng(e.center.lat, e.center.lon);
         }
 
         if (this.options.markerIcon) {
@@ -202,12 +202,11 @@ const OverPassLayer = L.FeatureGroup.extend({
   },
 
   _buildBoundsFromClips(clips) {
-    return clips.map(
-      clip =>
-        new L.LatLngBounds(
-          new L.LatLng(clip[0].Y / 1000000, clip[0].X / 1000000),
-          new L.LatLng(clip[2].Y / 1000000, clip[2].X / 1000000)
-        )
+    return clips.map(clip =>
+      L.latLngBounds(
+        L.latLng(clip[0].Y / 1000000, clip[0].X / 1000000).wrap(),
+        L.latLng(clip[2].Y / 1000000, clip[2].X / 1000000).wrap()
+      )
     );
   },
 
@@ -237,8 +236,8 @@ const OverPassLayer = L.FeatureGroup.extend({
     bounds._northEast.lng += biggestDimension / 2;
 
     return L.latLngBounds(
-      L.latLng(bounds._southWest.lat, bounds._southWest.lng),
-      L.latLng(bounds._northEast.lat, bounds._northEast.lng)
+      L.latLng(bounds._southWest.lat, bounds._southWest.lng).wrap(),
+      L.latLng(bounds._northEast.lat, bounds._northEast.lng).wrap()
     );
   },
 
