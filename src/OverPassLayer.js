@@ -1,5 +1,6 @@
 import L from 'leaflet';
 import ClipperLib from 'js-clipper';
+import { openDB } from 'idb';
 import './OverPassLayer.css';
 import './MinZoomIndicator';
 
@@ -14,6 +15,8 @@ const OverPassLayer = L.FeatureGroup.extend({
     timeout: 30 * 1000, // Milliseconds
     retryOnTimeout: false,
     noInitialRequest: false,
+    cacheEnabled: false,
+    cacheTTL: 1800, // Seconds
 
     beforeRequest() {},
 
@@ -67,12 +70,40 @@ const OverPassLayer = L.FeatureGroup.extend({
     }
   },
 
+  async _initDB() {
+    this._db = await openDB('leaflet-overpass-layer', 1, {
+      upgrade(db) {
+        db.createObjectStore('cache', { autoIncrement: true });
+      }
+    });
+
+    let items = await this._db.getAll('cache');
+    let keys = await this._db.getAllKeys('cache');
+
+    items.forEach((item, i) => {
+      if (new Date() > item.expires) {
+        this._db.delete('cache', keys[i]);
+      } else {
+        this.options.onSuccess.call(this, item.result);
+        this._onRequestLoadCallback(item.bounds);
+      }
+    });
+
+    if (!this.options.noInitialRequest) {
+      this._prepareRequest();
+    }
+  },
+
   initialize(options) {
     L.Util.setOptions(this, options);
 
     this._ids = {};
     this._loadedBounds = options.loadedBounds || [];
     this._requestInProgress = false;
+
+    if (this.options.cacheEnabled) {
+      this._initDB();
+    }
   },
 
   _getPoiPopupHTML(tags, id) {
@@ -328,7 +359,19 @@ const OverPassLayer = L.FeatureGroup.extend({
 
   _onRequestLoad(xhr, bounds) {
     if (xhr.status >= 200 && xhr.status < 400) {
-      this.options.onSuccess.call(this, JSON.parse(xhr.response));
+      let result = JSON.parse(xhr.response);
+      this.options.onSuccess.call(this, result);
+
+      if (this.options.cacheEnabled) {
+        let expireDate = new Date();
+        expireDate.setSeconds(expireDate.getSeconds() + this.options.cacheTTL);
+
+        this._db.put('cache', {
+          result: result,
+          bounds: bounds,
+          expires: expireDate
+        });
+      }
 
       this._onRequestLoadCallback(bounds);
     } else {
@@ -404,7 +447,7 @@ const OverPassLayer = L.FeatureGroup.extend({
 
     this._markers = L.featureGroup().addTo(this._map);
 
-    if (!this.options.noInitialRequest) {
+    if (!this.options.noInitialRequest && !this.options.cacheEnabled) {
       this._prepareRequest();
     }
 
