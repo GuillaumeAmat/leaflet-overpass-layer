@@ -40,6 +40,7 @@
     ]
   },
   "dependencies": {
+    "idb": "^4.0.5",
     "js-clipper": "^1.0.1",
     "leaflet": "^1.2.0"
   },
