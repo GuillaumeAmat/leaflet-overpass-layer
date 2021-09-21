@@ -6,10 +6,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin=""/>
     <link rel="stylesheet" href="../dist/OverPassLayer.css" />
 
-    <script src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet-src.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+       integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+       crossorigin=""></script>
+
     <script src="../dist/OverPassLayer.bundle.js"></script>
 
     <style>
@@ -36,11 +41,11 @@
             attribution: [attr_osm, attr_overpass].join(', ')
         });
 
-        var map = new L.Map('map').addLayer(osm).setView(new L.LatLng(44.82921, -0.5834), 14);
+        var map = new L.Map('map').addLayer(osm).setView(new L.LatLng(44.82921, -0.5834), 15);
 
         var opl = new L.OverPassLayer({
             debug: true,
-            endPoint: 'http://overpass.osm.rambler.ru/cgi/',
+            endPoint: 'https://lz4.overpass-api.de/api/',
             query: 'node({{bbox}})["amenity"="post_box"];out;',
             minZoomIndicatorOptions: {
                 position: 'topright',
