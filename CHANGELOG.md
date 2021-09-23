@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.8.4
+
+* Fix remove, clean up all resources created on add.
+* Add a demo URL.
+
 ## 2.8.3
 
 * Wrap the coordinates to always fit in -180, 180 degrees.
