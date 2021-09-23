@@ -414,11 +414,26 @@ const OverPassLayer = L.FeatureGroup.extend({
   onRemove(map) {
     L.LayerGroup.prototype.onRemove.call(this, map);
 
+    if (this.options.minZoomIndicatorEnabled === true) {
+      if (this._map.zoomIndicator) {
+        this._zoomControl._removeLayer(this);
+        this._map.removeControl(this._zoomControl);
+        this._zoomControl = null;
+
+        this._map.zoomIndicator = null;
+      }
+    }
+
+    if (this.options.debug) {
+      this._map.removeLayer(this._requestBoxes);
+      this._map.removeLayer(this._responseBoxes);
+    }
+
     this._resetData();
 
-    map.off('moveend', this._prepareRequest, this);
+    this._map.removeLayer(this._markers);
 
-    this._map = null;
+    this._map.off('moveend', this._prepareRequest, this);
   },
 
   setQuery(query) {

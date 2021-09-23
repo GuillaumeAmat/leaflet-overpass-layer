@@ -81,16 +81,12 @@ const MinZoomIndicator = L.Control.extend({
   },
 
   onRemove(map) {
-    L.Control.prototype.onRemove.call(this, map);
-
     map.off(
       {
         moveend: this._updateBox
       },
       this
     );
-
-    this._map = null;
   }
 });
 
