@@ -1,19 +1,22 @@
 const webpack = require('webpack');
 const path = require('path');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const extractCSS = new ExtractTextPlugin('OverPassLayer.css');
 
 const plugins = [extractCSS];
 
 plugins.push(
-  new webpack.optimize.UglifyJsPlugin({
-    minimize: true,
-    mangle: true,
-    output: {
-      comments: false
-    },
-    compress: {
-      warnings: false
+  new UglifyJsPlugin({
+    uglifyOptions: {
+      minimize: true,
+      mangle: true,
+      output: {
+        comments: false
+      },
+      compress: {
+        warnings: false
+      }
     }
   })
 );
@@ -23,7 +26,7 @@ module.exports = {
   plugins: plugins,
   context: path.join(__dirname, 'src'),
   entry: {
-    OverPassLayer: './OverPassLayer'
+    OverPassLayer: ['babel-polyfill', './OverPassLayer']
   },
   output: {
     path: path.join(__dirname, 'dist'),
