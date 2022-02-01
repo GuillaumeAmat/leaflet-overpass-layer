@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.9.0
+
+* Add cache support, thanks @fodor0205 (#41).
+
 ## 2.8.4
 
 * Fix remove, clean up all resources created on add.

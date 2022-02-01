@@ -1,5 +1,6 @@
 import L from 'leaflet';
 import ClipperLib from 'js-clipper';
+import { openDB } from 'idb';
 import './OverPassLayer.css';
 import './MinZoomIndicator';
 
@@ -14,6 +15,8 @@ const OverPassLayer = L.FeatureGroup.extend({
     timeout: 30 * 1000, // Milliseconds
     retryOnTimeout: false,
     noInitialRequest: false,
+    cacheEnabled: false,
+    cacheTTL: 1800, // Seconds
 
     beforeRequest() {},
 
@@ -73,6 +76,23 @@ const OverPassLayer = L.FeatureGroup.extend({
     this._ids = {};
     this._loadedBounds = options.loadedBounds || [];
     this._requestInProgress = false;
+
+    if (this.options.cacheEnabled) {
+      this._initCacheDb();
+    }
+  },
+
+  async _initCacheDb() {
+    this._cacheDb = await openDB('leaflet-overpass-layer', 1, {
+      upgrade(db) {
+        db.createObjectStore('cache', { autoIncrement: true });
+      }
+    });
+
+    const layerAddedToMap = !!this._map;
+    if (layerAddedToMap) {
+      this._loadCachedItems();
+    }
   },
 
   _getPoiPopupHTML(tags, id) {
@@ -328,7 +348,39 @@ const OverPassLayer = L.FeatureGroup.extend({
 
   _onRequestLoad(xhr, bounds) {
     if (xhr.status >= 200 && xhr.status < 400) {
-      this.options.onSuccess.call(this, JSON.parse(xhr.response));
+      let result = JSON.parse(xhr.response);
+      this.options.onSuccess.call(this, result);
+
+      const cacheDbInitialized = typeof this._cacheDb !== 'undefined';
+      if (this.options.cacheEnabled && cacheDbInitialized) {
+        let expireDate = new Date();
+        expireDate.setSeconds(expireDate.getSeconds() + this.options.cacheTTL);
+
+        this._getCachedItems().then(cachedItems => {
+          let existingCacheKey = undefined;
+
+          cachedItems.forEach((cachedItem, key) => {
+            const queryEquals = cachedItem.query === this.options.query;
+            const northEast = L.latLng(cachedItem.bounds._northEast);
+            const southWest = L.latLng(cachedItem.bounds._southWest);
+            const cachedItemBounds = L.latLngBounds(northEast, southWest);
+            if (queryEquals && bounds.equals(cachedItemBounds)) {
+              existingCacheKey = key;
+            }
+          });
+
+          this._cacheDb.put(
+            'cache',
+            {
+              query: this.options.query,
+              result: result,
+              bounds: bounds,
+              expires: expireDate
+            },
+            existingCacheKey
+          );
+        });
+      }
 
       this._onRequestLoadCallback(bounds);
     } else {
@@ -379,6 +431,39 @@ const OverPassLayer = L.FeatureGroup.extend({
     }
   },
 
+  async _getCachedItems() {
+    const cacheDbInitialized = typeof this._cacheDb !== 'undefined';
+    if (!cacheDbInitialized) return;
+
+    const keys = await this._cacheDb.getAllKeys('cache');
+    const items = await this._cacheDb.getAll('cache');
+
+    const itemsMap = new Map();
+    items.forEach((item, i) => {
+      const key = keys[i];
+      itemsMap.set(key, item);
+    });
+
+    return itemsMap;
+  },
+
+  async _loadCachedItems() {
+    const cacheDbInitialized = typeof this._cacheDb !== 'undefined';
+    if (!cacheDbInitialized || !this._map) return;
+
+    const cachedItems = await this._getCachedItems();
+    cachedItems.forEach((cachedItem, key) => {
+      if (new Date() > cachedItem.expires) {
+        this._cacheDb.delete('cache', key);
+      } else {
+        if (cachedItem.query === this.options.query) {
+          this.options.onSuccess.call(this, cachedItem.result);
+          this._onRequestLoadCallback(cachedItem.bounds);
+        }
+      }
+    });
+  },
+
   onAdd(map) {
     this._map = map;
 
@@ -403,6 +488,13 @@ const OverPassLayer = L.FeatureGroup.extend({
     }
 
     this._markers = L.featureGroup().addTo(this._map);
+
+    if (this.options.cacheEnabled) {
+      const cacheDbInitialized = typeof this._cacheDb !== 'undefined';
+      if (cacheDbInitialized) {
+        this._loadCachedItems();
+      }
+    }
 
     if (!this.options.noInitialRequest) {
       this._prepareRequest();
