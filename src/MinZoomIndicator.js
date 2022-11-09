@@ -48,6 +48,10 @@ const MinZoomIndicator = L.Control.extend({
       L.DomEvent.preventDefault(event);
     }
 
+    if (!this._map) {
+      return;
+    }
+
     if (minZoomLevel == -1) {
       this._container.innerHTML = this.options.minZoomMessageNoLayer;
     } else {
