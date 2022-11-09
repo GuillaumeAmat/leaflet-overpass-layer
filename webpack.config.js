@@ -1,4 +1,3 @@
-const webpack = require('webpack');
 const path = require('path');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
@@ -8,6 +7,7 @@ const plugins = [extractCSS];
 
 plugins.push(
   new UglifyJsPlugin({
+    sourceMap: true,
     uglifyOptions: {
       minimize: true,
       mangle: true,
