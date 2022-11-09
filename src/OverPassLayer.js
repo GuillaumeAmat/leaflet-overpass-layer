@@ -290,6 +290,10 @@ const OverPassLayer = L.FeatureGroup.extend({
   },
 
   _prepareRequest() {
+    if (!this._map) {
+      return false;
+    }
+
     if (this._map.getZoom() < this.options.minZoom) {
       return false;
     }
