@@ -58,7 +58,7 @@
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-json": "^1.2.0",
     "extract-text-webpack-plugin": "^3.0.1",
-    "husky": "^0.14.3",
+    "husky": "^8.0.2",
     "lint-staged": "^4.2.3",
     "postcss-loader": "^2.0.7",
     "prettier": "^1.7.4",
