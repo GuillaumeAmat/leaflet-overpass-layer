@@ -68,6 +68,8 @@ options: {
   timeout: 30 * 1000, // Milliseconds
   retryOnTimeout: false,
   noInitialRequest: false,
+  cacheEnabled: false,
+  cacheTTL: 1800, // Seconds
   minZoomIndicatorEnabled: true,
   minZoomIndicatorOptions: {
     position: 'topright',
